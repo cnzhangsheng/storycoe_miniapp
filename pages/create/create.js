@@ -178,6 +178,7 @@ Page({
       })
 
       console.log('[Create] 生成成功:', generateRes)
+      console.log('[Create] 新绘本 ID:', generateRes.book_id || generateRes.data?.book_id)
 
       this.setData({ progress: 100 })
 
@@ -193,12 +194,14 @@ Page({
 
       // 设置刷新标记，通知书架页面需要刷新
       wx.setStorageSync('needRefreshBookshelf', true)
+      console.log('[Create] 已设置 needRefreshBookshelf 标志')
 
       wx.showModal({
         title: '上传成功',
         content: '绘本已创建成功！',
         showCancel: false,
         success: () => {
+          console.log('[Create] 用户点击确认，跳转到书架页')
           // 跳转到书架
           wx.switchTab({ url: '/pages/bookshelf/bookshelf' })
         }

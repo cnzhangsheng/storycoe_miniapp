@@ -21,30 +21,58 @@ Page({
   onShow() {
     // 检查是否需要强制刷新（从创作页创建绘本后）
     const needRefresh = wx.getStorageSync('needRefreshBookshelf')
-    if (needRefresh) {
-      console.log('[Bookshelf] 检测到刷新标志，清除并强制刷新')
-      wx.removeStorageSync('needRefreshBookshelf')
-    }
 
-    // 每次显示页面时检查登录状态并刷新数据
-    this.checkLogin(needRefresh)
-  },
+    console.log('[Bookshelf] onShow 执行, needRefresh=', needRefresh)
 
-  /**
-   * 检查登录状态
-   * @param {boolean} forceRefresh 是否强制刷新数据
-   */
-  checkLogin(forceRefresh = false) {
+    // 每次显示页面时检查登录状态
     const token = wx.getStorageSync('token')
     const userInfo = wx.getStorageSync('userInfo')
     const isLoggedIn = !!token && !!userInfo
 
-    console.log('[Bookshelf] 登录状态检查: token=', !!token, 'userInfo=', !!userInfo, 'forceRefresh=', forceRefresh)
+    console.log('[Bookshelf] 登录状态: token=', !!token, 'userInfo=', !!userInfo, 'isLoggedIn=', isLoggedIn)
 
     this.setData({ isLoggedIn })
 
     if (isLoggedIn) {
-      this.loadBooks(forceRefresh)
+      // 如果需要刷新，先加载数据再清除标志
+      if (needRefresh) {
+        console.log('[Bookshelf] 检测到刷新标志，强制刷新数据')
+        this.loadBooks(true).then(() => {
+          // 数据加载完成后清除标志
+          wx.removeStorageSync('needRefreshBookshelf')
+          console.log('[Bookshelf] 刷新标志已清除')
+        })
+      } else {
+        // 正常刷新
+        this.loadBooks(false)
+      }
+    } else {
+      // 未登录时清除标志并清空数据
+      if (needRefresh) {
+        wx.removeStorageSync('needRefreshBookshelf')
+      }
+      this.setData({
+        myBooks: [],
+        likedBooks: [],
+        isLoading: false
+      })
+    }
+  },
+
+  /**
+   * 检查登录状态（onLoad 时调用）
+   */
+  checkLogin() {
+    const token = wx.getStorageSync('token')
+    const userInfo = wx.getStorageSync('userInfo')
+    const isLoggedIn = !!token && !!userInfo
+
+    console.log('[Bookshelf] checkLogin 登录状态检查: token=', !!token, 'userInfo=', !!userInfo)
+
+    this.setData({ isLoggedIn })
+
+    if (isLoggedIn) {
+      this.loadBooks(false)
     } else {
       this.setData({
         myBooks: [],
@@ -71,11 +99,12 @@ Page({
   /**
    * 加载书架数据
    * @param {boolean} forceRefresh 是否强制刷新（用于日志）
+   * @returns {Promise} 加载完成后的 Promise
    */
   async loadBooks(forceRefresh = false) {
     if (!this.data.isLoggedIn) {
       console.log('[Bookshelf] 未登录，跳过加载')
-      return
+      return Promise.resolve()
     }
 
     console.log('[Bookshelf] 开始加载...', forceRefresh ? '(强制刷新)' : '')
@@ -100,6 +129,8 @@ Page({
         likedBooks,
         isLoading: false
       })
+
+      return Promise.resolve()
     } catch (error) {
       console.error('[Bookshelf] 加载失败:', error.message || error)
       this.setData({ isLoading: false })
@@ -107,6 +138,7 @@ Page({
         title: error.message || '加载失败',
         icon: 'none'
       })
+      return Promise.reject(error)
     }
   },
 

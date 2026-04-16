@@ -54,8 +54,8 @@
             <view class="book-cover">
               <image src="{{item.image}}" mode="aspectFill" lazy-load />
               <!-- 状态标签 -->
-              <view class="status-tag {{item.status}}" wx:if="{{item.status != 'completed'}}">
-                <text>{{item.status == 'generating' ? '生成中' : item.status == 'processing' ? '处理中' : '错误'}}</text>
+              <view class="status-tag {{item.status}}" wx:if="{{item.status && item.status !== 'completed'}}">
+                <text>{{item.status === 'generating' ? '生成中' : item.status === 'processing' ? '处理中' : item.status === 'draft' ? '草稿' : '错误'}}</text>
               </view>
               <!-- 等级标签 -->
               <view class="level-tag">
