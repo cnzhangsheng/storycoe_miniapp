@@ -1,0 +1,118 @@
+<!--
+  创作页面 - 参考 Flutter 应用设计
+-->
+
+<view class="create-page">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">创作新绘本</text>
+    <text class="page-subtitle">上传绘本照片，生成朗读绘本</text>
+  </view>
+
+  <!-- 第一行：封面 + 绘本名称 -->
+  <view class="cover-title-row">
+    <!-- 绘本封面 -->
+    <view class="cover-section" bindtap="onChooseCover">
+      <view class="cover-box {{hasCover ? 'has-image' : ''}}">
+        <image wx:if="{{hasCover}}" src="{{coverImage}}" mode="aspectFill" class="cover-image" />
+        <view wx:else class="cover-placeholder">
+          <text class="cover-icon">🖼️</text>
+          <text class="cover-label">封面</text>
+        </view>
+        <!-- 删除封面按钮 -->
+        <view wx:if="{{hasCover}}" class="cover-delete" catchtap="onDeleteCover">
+          <text>×</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 绘本名称 -->
+    <view class="title-section">
+      <text class="section-label">绘本名称</text>
+      <input class="title-input" placeholder="给你的书起个好听的名字..." value="{{title}}" bindinput="onTitleInput" maxlength="50" />
+
+      <!-- 分享类型 -->
+      <text class="section-label share-label">分享类型</text>
+      <view class="share-type-row">
+        <view class="share-btn {{shareType === 'private' ? 'active private-active' : ''}}" bindtap="onSetShareType" data-type="private">
+          <text class="share-icon">🔒</text>
+          <text class="share-text">私有</text>
+        </view>
+        <view class="share-btn {{shareType === 'public' ? 'active public-active' : ''}}" bindtap="onSetShareType" data-type="public">
+          <text class="share-icon">🌐</text>
+          <text class="share-text">公开</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 第二行：绘本内容上传 -->
+  <view class="content-section">
+    <view class="section-header">
+      <text class="section-label">绘本内容</text>
+      <text wx:if="{{images.length}}" class="image-count">{{images.length}} 张</text>
+    </view>
+
+    <view class="upload-btn" bindtap="onChooseImages">
+      <text class="upload-icon">➕</text>
+      <text class="upload-text">{{images.length ? '继续添加照片' : '从相册上传绘本照片'}}</text>
+    </view>
+
+    <text wx:if="{{images.length === 0}}" class="upload-tip">最多20张，支持拖动排序</text>
+  </view>
+
+  <!-- 图片网格 -->
+  <view class="images-grid-section" wx:if="{{images.length > 0}}">
+    <view class="grid-header">
+      <text class="grid-count">共 {{images.length}} 张</text>
+      <view class="grid-actions">
+        <view class="grid-add-btn" bindtap="onChooseImages">
+          <text class="action-icon">+</text>
+          <text class="action-text">添加</text>
+        </view>
+        <view class="grid-clear-btn" bindtap="onClearImages">
+          <text class="action-icon">🗑️</text>
+          <text class="action-text">清空</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 图片列表 -->
+    <view class="images-grid">
+      <view class="image-item" wx:for="{{images}}" wx:key="id">
+        <image src="{{item.path}}" mode="aspectFill" class="image-thumb" bindtap="onPreviewImage" data-index="{{index}}" />
+        <!-- 序号 -->
+        <view class="image-badge">
+          <text>{{index + 1}}</text>
+        </view>
+        <!-- 删除按钮 -->
+        <view class="image-delete" catchtap="onDeleteImage" data-index="{{index}}">
+          <text>×</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提示卡片 -->
+  <view class="tips-card" wx:if="{{images.length > 0}}">
+    <view class="tip-icon-box">
+      <text class="tip-icon">💡</text>
+    </view>
+    <text class="tip-text">点击上下箭头可以调整图片顺序</text>
+  </view>
+
+  <!-- 生成按钮 -->
+  <view class="generate-section" wx:if="{{images.length > 0}}">
+    <view class="generate-btn {{generating ? 'disabled' : ''}}" bindtap="onGenerate">
+      <text class="generate-icon">✨</text>
+      <text class="generate-text">{{generating ? '生成中...' : '生成朗读绘本'}}</text>
+    </view>
+  </view>
+
+  <!-- 生成进度 -->
+  <view class="progress-card" wx:if="{{generating}}">
+    <text class="progress-title">正在上传图片...</text>
+    <progress percent="{{progress}}" stroke-width="8" activeColor="#4CAF50" backgroundColor="#EEEEEE" />
+    <text class="progress-text">{{progress}}%</text>
+  </view>
+</view>

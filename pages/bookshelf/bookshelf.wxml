@@ -1,0 +1,106 @@
+<!--
+  书架页面
+-->
+
+<view class="bookshelf-page">
+  <!-- 未登录状态 -->
+  <view class="login-prompt" wx:if="{{!isLoggedIn}}">
+    <view class="prompt-icon">📚</view>
+    <text class="prompt-title">登录后查看书架</text>
+    <text class="prompt-desc">登录后可以管理您的绘本和收藏</text>
+    <view class="login-btn" bindtap="onLoginTap">立即登录</view>
+  </view>
+
+  <!-- 已登录状态 -->
+  <block wx:else>
+    <!-- Tab 切换 -->
+    <view class="tab-section">
+      <view
+        class="tab-btn {{selectedTab == 0 ? 'active' : ''}}"
+        data-tab="0"
+        bindtap="onTabChange"
+      >
+        <text class="tab-text">我的绘本架</text>
+        <text class="tab-count" wx:if="{{myBooks.length > 0}}">{{myBooks.length}}</text>
+      </view>
+      <view
+        class="tab-btn {{selectedTab == 1 ? 'active' : ''}}"
+        data-tab="1"
+        bindtap="onTabChange"
+      >
+        <text class="tab-text">喜欢的绘本</text>
+        <text class="tab-count" wx:if="{{likedBooks.length > 0}}">{{likedBooks.length}}</text>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{isLoading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 绘本网格（非加载状态） -->
+    <view class="books-grid" wx:if="{{!isLoading}}">
+      <!-- 我的绘本架 Tab -->
+      <block wx:if="{{selectedTab == 0}}">
+        <view wx:if="{{myBooks.length > 0}}">
+          <view
+            class="book-card"
+            wx:for="{{myBooks}}"
+            wx:key="id"
+            data-book-id="{{item.id}}"
+            bindtap="onBookTap"
+          >
+            <view class="book-cover">
+              <image src="{{item.image}}" mode="aspectFill" lazy-load />
+              <!-- 状态标签 -->
+              <view class="status-tag {{item.status}}" wx:if="{{item.status != 'completed'}}">
+                <text>{{item.status == 'generating' ? '生成中' : item.status == 'processing' ? '处理中' : '错误'}}</text>
+              </view>
+              <!-- 等级标签 -->
+              <view class="level-tag">
+                <text>Lv.{{item.level}}</text>
+              </view>
+              <!-- 新绘本标记 -->
+              <view class="new-tag" wx:if="{{item.isNew}}">NEW</view>
+            </view>
+            <text class="book-title">{{item.title}}</text>
+          </view>
+        </view>
+        <!-- 空状态 -->
+        <view class="empty-container" wx:else>
+          <text class="empty-icon">📝</text>
+          <text class="empty-text">还没有创作绘本</text>
+          <text class="empty-tip">去创作页面开始创作吧</text>
+        </view>
+      </block>
+
+      <!-- 喜欢的绘本 Tab -->
+      <block wx:if="{{selectedTab == 1}}">
+        <view wx:if="{{likedBooks.length > 0}}">
+          <view
+            class="book-card"
+            wx:for="{{likedBooks}}"
+            wx:key="id"
+            data-book-id="{{item.id}}"
+            bindtap="onBookTap"
+          >
+            <view class="book-cover">
+              <image src="{{item.image}}" mode="aspectFill" lazy-load />
+              <view class="level-tag">
+                <text>Lv.{{item.level}}</text>
+              </view>
+            </view>
+            <text class="book-title">{{item.title}}</text>
+          </view>
+        </view>
+        <!-- 空状态 -->
+        <view class="empty-container" wx:else>
+          <text class="empty-icon">❤️</text>
+          <text class="empty-text">还没有喜欢的绘本</text>
+          <text class="empty-tip">去探索页面发现精彩绘本</text>
+        </view>
+      </block>
+    </view>
+  </block>
+</view>

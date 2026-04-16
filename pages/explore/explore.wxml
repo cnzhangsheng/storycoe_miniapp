@@ -1,0 +1,123 @@
+<!--
+  探索页面 - 首页
+-->
+
+<view class="explore-page">
+  <!-- 搜索框 -->
+  <view class="search-section">
+    <view class="search-box">
+      <view class="search-icon">🔍</view>
+      <input
+        class="search-input"
+        placeholder="搜索绘本名称..."
+        value="{{searchTerm}}"
+        bindinput="onSearchInput"
+        bindconfirm="onSearch"
+      />
+      <view class="search-btn" bindtap="onSearch">搜索</view>
+    </view>
+
+    <!-- 搜索历史 -->
+    <view class="search-history" wx:if="{{searchHistory.length > 0}}">
+      <view class="history-header">
+        <text class="history-title">搜索历史</text>
+        <text class="history-clear" bindtap="onClearHistory">清除</text>
+      </view>
+      <view class="history-list">
+        <view
+          class="history-item"
+          wx:for="{{searchHistory}}"
+          wx:key="*this"
+          data-term="{{item}}"
+          bindtap="onHistoryTap"
+        >
+          {{item}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 级别筛选 -->
+  <view class="level-section">
+    <view
+      class="level-chip {{item.active ? 'active' : ''}}"
+      wx:for="{{levels}}"
+      wx:key="value"
+      data-level="{{item.value}}"
+      bindtap="onLevelSelect"
+    >
+      {{item.label}}
+    </view>
+  </view>
+
+  <!-- 热门绘本榜 -->
+  <view class="hot-section card" wx:if="{{hotBooks.length > 0}}">
+    <view class="section-header">
+      <view class="section-title">
+        <text class="title-icon">🔥</text>
+        <text class="title-text">热门绘本榜</text>
+      </view>
+      <view class="section-more" bindtap="onViewAllLeaderboard">
+        <text>查看全部</text>
+        <text class="more-icon">›</text>
+      </view>
+    </view>
+
+    <!-- 热门榜列表（横向滚动） -->
+    <scroll-view class="hot-scroll" scroll-x enable-flex>
+      <view class="hot-column" wx:for="{{hotBooksColumns}}" wx:key="index" wx:for-item="column">
+        <view
+          class="hot-book-item"
+          wx:for="{{column}}"
+          wx:key="id"
+          data-book-id="{{item.id}}"
+          bindtap="onHotBookTap"
+        >
+          <!-- 封面 -->
+          <image class="hot-cover" src="{{item.image}}" mode="aspectFill" binderror="onImageError" data-index="{{index}}" />
+          <!-- 序号 + 书名 -->
+          <view class="hot-info">
+            <text class="hot-rank">{{item.rank}}</text>
+            <text class="hot-title">{{item.title}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 绘本网格列表 -->
+  <view class="books-section">
+    <view class="books-grid" wx:if="{{displayedBooks.length > 0}}">
+      <view
+        class="book-card"
+        wx:for="{{displayedBooks}}"
+        wx:key="id"
+        data-book-id="{{item.id}}"
+        bindtap="onBookTap"
+      >
+        <view class="book-cover">
+          <image src="{{item.image}}" mode="aspectFill" binderror="onImageError" />
+          <view class="book-level">Lv.{{item.level}}</view>
+          <view class="book-new" wx:if="{{item.isNew}}">NEW</view>
+        </view>
+        <view class="book-title">{{item.title}}</view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore}}" bindtap="loadMoreBooks">
+      <text>{{isLoading ? '加载中...' : '加载更多'}}</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-container" wx:if="{{isEmpty}}">
+      <image class="empty-icon" src="" mode="aspectFit" />
+      <text class="empty-text">没有找到相关的绘本哦</text>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{isLoading && displayedBooks.length === 0}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+</view>

@@ -1,0 +1,141 @@
+/* 网格模式 */
+.book-card.grid {
+  width: 100%;
+}
+
+.book-card.grid .book-cover {
+  height: 120px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.book-card.grid .book-cover image {
+  width: 100%;
+  height: 100%;
+}
+
+.book-card.grid .book-info {
+  margin-top: 8px;
+}
+
+.book-card.grid .book-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #333333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book-card.grid .book-author {
+  font-size: 10px;
+  color: #999999;
+  margin-top: 4px;
+}
+
+.book-card.grid .book-stats {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.book-card.grid .stat-item {
+  font-size: 10px;
+  color: #666666;
+}
+
+.book-card.grid .level-tag {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 6px;
+  background-color: #FF7043;
+  border-radius: 4px;
+  font-size: 10px;
+  color: #FFFFFF;
+}
+
+.book-card.grid .like-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 列表模式 */
+.book-card.list {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: #FFFFFF;
+  border-radius: 16px;
+}
+
+.book-card.list .book-cover {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.book-card.list .book-cover image {
+  width: 100%;
+  height: 100%;
+}
+
+.book-card.list .book-info {
+  flex: 1;
+  margin-left: 12px;
+}
+
+.book-card.list .book-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.book-card.list .book-author {
+  font-size: 12px;
+  color: #999999;
+  margin-top: 4px;
+}
+
+.book-card.list .book-stats {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.book-card.list .stat-item {
+  font-size: 11px;
+  color: #666666;
+}
+
+.book-card.list .level-tag {
+  padding: 2px 8px;
+  background-color: #FF7043;
+  border-radius: 8px;
+  font-size: 10px;
+  color: #FFFFFF;
+  margin-top: 6px;
+}
+
+.book-card.list .like-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  background-color: #F5F5F5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.book-card.list .like-btn.liked {
+  background-color: #FFE0E0;
+}

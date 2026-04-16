@@ -1,0 +1,32 @@
+<!--
+  排行榜详情页 - 仅展示热门绘本榜
+-->
+
+<view class="leaderboard-page">
+  <!-- 热门绘本榜 -->
+  <view class="hot-books-section">
+    <text class="section-title">🔥 热门绘本榜</text>
+
+    <view class="loading" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+
+    <view class="book-list" wx:else>
+      <view class="book-item" wx:for="{{books}}" wx:key="id" bindtap="onBookTap" data-id="{{item.id}}">
+        <view class="rank-badge {{index < 3 ? 'top' : ''}}">
+          <text>{{index + 1}}</text>
+        </view>
+        <image class="book-cover" src="{{item.cover_image}}" mode="aspectFill" />
+        <view class="book-info">
+          <text class="book-title">{{item.title}}</text>
+          <text class="book-level">Lv.{{item.level || 1}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty" wx:if="{{!loading && books.length === 0}}">
+      <text class="empty-icon">📚</text>
+      <text class="empty-text">暂无热门绘本</text>
+    </view>
+  </view>
+</view>

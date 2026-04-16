@@ -1,0 +1,34 @@
+<!--
+  句子项组件
+-->
+
+<view class="sentence-item {{isPlaying ? 'playing' : ''}}">
+  <!-- 序号 -->
+  <view class="sentence-index">
+    <text>{{index + 1}}</text>
+  </view>
+
+  <!-- 内容 -->
+  <view class="sentence-content">
+    <text class="sentence-text">{{sentence.text}}</text>
+    <text class="sentence-translation" wx:if="{{sentence.translation}}">{{sentence.translation}}</text>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="sentence-actions">
+    <!-- 播放按钮 -->
+    <view class="action-btn play {{isPlaying ? 'active' : ''}}" bindtap="onPlayTap">
+      <text>{{isPlaying ? '⏸' : '▶'}}</text>
+    </view>
+
+    <!-- 编辑按钮 -->
+    <view class="action-btn edit" wx:if="{{canEdit}}" bindtap="onEditTap">
+      <text>✏️</text>
+    </view>
+
+    <!-- 删除按钮 -->
+    <view class="action-btn delete" wx:if="{{canEdit}}" bindtap="onDeleteTap">
+      <text>🗑</text>
+    </view>
+  </view>
+</view>

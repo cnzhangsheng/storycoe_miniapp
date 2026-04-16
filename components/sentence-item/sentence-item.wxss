@@ -1,0 +1,78 @@
+.sentence-item {
+  padding: 12px 16px;
+  background-color: #F5F5F5;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.sentence-item.playing {
+  background-color: #E8F5E9;
+  border: 2px solid #4CAF50;
+}
+
+.sentence-index {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background-color: #4CAF50;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sentence-item.playing .sentence-index {
+  background-color: #FF7043;
+}
+
+.sentence-content {
+  flex: 1;
+  margin-left: 12px;
+}
+
+.sentence-text {
+  font-size: 16px;
+  color: #333333;
+  line-height: 1.4;
+}
+
+.sentence-translation {
+  font-size: 12px;
+  color: #999999;
+  margin-top: 6px;
+}
+
+.sentence-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-btn.play {
+  background-color: #4CAF50;
+  color: #FFFFFF;
+}
+
+.action-btn.play.active {
+  background-color: #FF7043;
+}
+
+.action-btn.edit {
+  background-color: #EEEEEE;
+}
+
+.action-btn.delete {
+  background-color: #FFEEEE;
+  color: #FF0000;
+}

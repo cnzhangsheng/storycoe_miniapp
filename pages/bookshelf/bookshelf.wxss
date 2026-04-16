@@ -1,0 +1,219 @@
+/* 书架页面样式 */
+
+.bookshelf-page {
+  padding: 16px;
+  padding-bottom: 80px;
+  background-color: #FAFAFA;
+}
+
+/* Tab 切换 */
+.tab-section {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #999999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tab-btn.active {
+  background-color: #4CAF50;
+  color: #FFFFFF;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.tab-count {
+  font-size: 12px;
+  padding: 2px 6px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.tab-btn:not(.active) .tab-count {
+  background-color: #E0E0E0;
+  color: #666666;
+}
+
+/* 绘本网格 */
+.books-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.book-card {
+  width: calc(33.33% - 8px);
+}
+
+.book-cover {
+  position: relative;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #FFFFFF;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.book-cover image {
+  width: 100%;
+  height: 100%;
+}
+
+/* 状态标签 */
+.status-tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.status-tag.generating, .status-tag.processing {
+  background-color: #FF9800;
+}
+
+.status-tag.error {
+  background-color: #F44336;
+}
+
+/* 等级标签 */
+.level-tag {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  padding: 4px 8px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* 新绘本标记 */
+.new-tag {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  background-color: #FF7043;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.book-title {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333333;
+  text-align: left;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 登录提示 */
+.login-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
+}
+
+.prompt-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.prompt-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333333;
+  margin-bottom: 12px;
+}
+
+.prompt-desc {
+  font-size: 14px;
+  color: #666666;
+  margin-bottom: 24px;
+}
+
+.login-btn {
+  padding: 12px 40px;
+  background-color: #4CAF50;
+  border-radius: 24px;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #E0E0E0;
+  border-top-color: #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 14px;
+  color: #666666;
+  margin-top: 16px;
+}
+
+/* 空状态 */
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 8px;
+}
+
+.empty-tip {
+  font-size: 13px;
+  color: #4CAF50;
+}

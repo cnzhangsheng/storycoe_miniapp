@@ -1,0 +1,84 @@
+<!--
+  我的页面
+-->
+
+<view class="profile-page">
+  <!-- 未登录状态 -->
+  <view class="login-prompt" wx:if="{{!isLoggedIn}}">
+    <view class="prompt-icon">👤</view>
+    <text class="prompt-title">登录您的账户</text>
+    <text class="prompt-desc">登录后可以管理个人信息、查看成就和领取奖励</text>
+    <view class="login-btn" bindtap="onLoginTap">微信登录</view>
+  </view>
+
+  <!-- 已登录状态 -->
+  <block wx:if="{{isLoggedIn}}">
+    <!-- 用户卡片 -->
+    <view class="user-card card">
+      <view class="user-avatar" bindtap="onAvatarTap">
+        <image src="{{userInfo.avatar}}" mode="aspectFill" />
+        <view class="avatar-edit">更换</view>
+      </view>
+      <view class="user-info">
+        <view class="user-name" bindtap="onNameTap">
+          <text>{{userInfo.name || 'Lily 小象'}}</text>
+          <text class="edit-icon">✏️</text>
+        </view>
+        <view class="user-level">Lv.{{stats.level || 1}}</view>
+      </view>
+    </view>
+
+    <!-- 每日任务 -->
+    <view class="daily-task card" wx:if="{{dailyTask}}">
+      <view class="task-header">
+        <text class="task-title">今日任务</text>
+        <text class="task-reward" wx:if="{{dailyTask.canClaim}}">可领取</text>
+      </view>
+      <view class="task-content">
+        <text>阅读绘本 {{dailyTask.read_books}}/{{dailyTask.target_books}} 本</text>
+        <progress percent="{{dailyTask.progress_percent}}" stroke-width="6" activeColor="#4CAF50" />
+      </view>
+      <view class="task-claim" wx:if="{{dailyTask.canClaim}}" bindtap="onClaimReward">
+        <text>领取奖励 ⭐{{dailyTask.reward_stars}}</text>
+      </view>
+    </view>
+
+    <!-- 成就统计 -->
+    <view class="achievements-section">
+      <view class="achievements-header" bindtap="onAchievementTap">
+        <text class="achievements-title">我的成就</text>
+        <text class="achievements-more">›</text>
+      </view>
+      <view class="achievements-grid">
+        <view class="achievement-item">
+          <text class="achievement-icon">📚</text>
+          <text class="achievement-value">{{stats.books_read || 0}}</text>
+          <text class="achievement-label">已读绘本</text>
+        </view>
+        <view class="achievement-item">
+          <text class="achievement-icon">⭐</text>
+          <text class="achievement-value">{{stats.stars || 0}}</text>
+          <text class="achievement-label">累计星星</text>
+        </view>
+        <view class="achievement-item">
+          <text class="achievement-icon">🔥</text>
+          <text class="achievement-value">{{stats.streak || 0}}</text>
+          <text class="achievement-label">连续天数</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 功能菜单 -->
+    <view class="menu-section">
+      <view class="menu-item card" bindtap="onAchievementTap">
+        <text class="menu-label">家长中心</text>
+      </view>
+      <view class="menu-item card">
+        <text class="menu-label">帮助与反馈</text>
+      </view>
+      <view class="menu-item card" bindtap="onLogout">
+        <text class="menu-label logout">退出登录</text>
+      </view>
+    </view>
+  </block>
+</view>

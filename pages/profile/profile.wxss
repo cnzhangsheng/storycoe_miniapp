@@ -1,0 +1,194 @@
+.profile-page {
+  padding: 16px;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.user-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+}
+
+.user-avatar image {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-edit {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  font-size: 9px;
+  color: #FFFFFF;
+  text-align: center;
+}
+
+.user-info {
+  margin-left: 12px;
+  flex: 1;
+}
+
+.user-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.edit-icon {
+  margin-left: 6px;
+  font-size: 12px;
+}
+
+.user-level {
+  margin-top: 6px;
+  padding: 4px 8px;
+  background-color: #FF7043;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.daily-task {
+  margin-bottom: 16px;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.task-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.task-reward {
+  font-size: 12px;
+  color: #4CAF50;
+}
+
+.task-content {
+  margin-top: 12px;
+}
+
+.task-claim {
+  margin-top: 12px;
+  padding: 10px;
+  background-color: #FF7043;
+  border-radius: 12px;
+  color: #FFFFFF;
+  text-align: center;
+  font-weight: 700;
+}
+
+.achievements-section {
+  margin-bottom: 16px;
+}
+
+.achievements-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.achievements-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.achievements-more {
+  color: #999999;
+}
+
+.achievements-grid {
+  display: flex;
+  gap: 12px;
+}
+
+.achievement-item {
+  flex: 1;
+  padding: 16px;
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.achievement-icon {
+  font-size: 24px;
+}
+
+.achievement-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4CAF50;
+}
+
+.achievement-label {
+  font-size: 10px;
+  color: #999999;
+}
+
+.menu-section {
+  margin-top: 20px;
+}
+
+.menu-item {
+  margin-bottom: 12px;
+  padding: 16px;
+}
+
+.menu-label {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.menu-label.logout {
+  color: #FF0000;
+}
+
+/* 登录提示 */
+.login-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
+}
+
+.prompt-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.prompt-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333333;
+  margin-bottom: 12px;
+}
+
+.prompt-desc {
+  font-size: 14px;
+  color: #666666;
+  margin-bottom: 24px;
+}
+
+.login-btn {
+  padding: 12px 40px;
+  background-color: #4CAF50;
+  border-radius: 24px;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 700;
+}

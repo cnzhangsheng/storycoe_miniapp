@@ -1,0 +1,70 @@
+<!--
+  成就详情页
+-->
+
+<view class="achievement-page">
+  <!-- 统计卡片 -->
+  <view class="stats-card card" wx:if="{{stats}}">
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-icon">📚</text>
+        <text class="stat-value">{{stats.books_read || 0}}</text>
+        <text class="stat-label">已读绘本</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-icon">✍️</text>
+        <text class="stat-value">{{stats.books_created || 0}}</text>
+        <text class="stat-label">创作绘本</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-icon">⭐</text>
+        <text class="stat-value">{{stats.stars || 0}}</text>
+        <text class="stat-label">累计星星</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-icon">🔥</text>
+        <text class="stat-value">{{stats.streak || 0}}</text>
+        <text class="stat-label">连续天数</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 等级进度 -->
+  <view class="level-card card" wx:if="{{stats}}">
+    <view class="level-header">
+      <text class="level-title">当前等级</text>
+      <text class="level-badge">Lv.{{stats.level || 1}}</text>
+    </view>
+    <view class="level-progress">
+      <progress percent="{{stats.level_progress || 0}}" stroke-width="8" activeColor="#FF7043" />
+      <text class="level-text">{{stats.current_exp || 0}} / {{stats.next_level_exp || 100}} 经验</text>
+    </view>
+  </view>
+
+  <!-- 成就列表 -->
+  <view class="achievements-section">
+    <text class="section-title">成就徽章</text>
+
+    <view class="loading" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+
+    <view class="achievements-grid" wx:else>
+      <view class="achievement-item {{item.is_unlocked ? 'unlocked' : 'locked'}}" wx:for="{{achievements}}" wx:key="id">
+        <view class="achievement-icon">
+          <text>{{item.icon || '🏆'}}</text>
+        </view>
+        <text class="achievement-name">{{item.name}}</text>
+        <text class="achievement-desc">{{item.description}}</text>
+        <view class="achievement-status">
+          <text wx:if="{{item.is_unlocked}}">✅ 已解锁</text>
+          <text wx:else>🔒 未解锁</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty" wx:if="{{!loading && achievements.length === 0}}">
+      <text>暂无成就</text>
+    </view>
+  </view>
+</view>

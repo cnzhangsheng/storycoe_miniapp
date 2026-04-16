@@ -1,0 +1,58 @@
+/**
+ * StoryCoe 主题样式变量
+ * 使用 CSS 变量语法（微信小程序支持）
+ */
+
+/* 主色调 */
+page {
+  --primary-color: #4CAF50;
+  --primary-light: #81C784;
+  --primary-dark: #388E3C;
+
+  /* 辅助色 */
+  --secondary-color: #FF7043;
+  --secondary-light: #FF8A65;
+  --secondary-dark: #F4511E;
+
+  /* 第三色 */
+  --tertiary-color: #42A5F5;
+  --tertiary-light: #64B5F6;
+  --tertiary-dark: #1E88E5;
+
+  /* 背景色 */
+  --bg-page: #F5F7FA;
+  --bg-card: #FFFFFF;
+  --bg-input: #F5F5F5;
+  --bg-tag: rgba(76, 175, 80, 0.1);
+
+  /* 文字色 */
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --text-white: #FFFFFF;
+
+  /* 边框色 */
+  --border-light: #E0E0E0;
+  --border-primary: rgba(76, 175, 80, 0.3);
+
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* 间距 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+
+  /* 字号 */
+  --font-xs: 10px;
+  --font-sm: 12px;
+  --font-md: 14px;
+  --font-lg: 16px;
+  --font-xl: 18px;
+  --font-xxl: 20px;
+}

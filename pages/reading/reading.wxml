@@ -1,0 +1,169 @@
+<!--
+  阅读页面 - 严格参考 Flutter 应用设计
+
+  布局结构：
+  1. 顶部导航栏（返回按钮 + 标题 + 页码指示器 + 更多按钮）
+  2. 图片区域（自适应高度，圆角边框）
+  3. 句子列表区域（白色圆角卡片）
+-->
+
+<view class="reading-page">
+  <!-- 顶部导航栏 -->
+  <view class="top-bar">
+    <!-- 返回按钮 -->
+    <view class="back-btn" bindtap="onGoBack">
+      <text class="back-icon">‹</text>
+    </view>
+
+    <!-- 绘本标题 -->
+    <view class="title-area">
+      <text class="book-title">{{book.title || '绘本朗读'}}</text>
+      <text class="edit-hint" wx:if="{{canEdit}}">✏️</text>
+    </view>
+
+    <!-- 页码指示器 -->
+    <view class="page-indicator">
+      <text class="page-icon">📖</text>
+      <text class="page-text">{{currentPageIndex + 1}}/{{book.pages.length}}</text>
+    </view>
+
+    <!-- 收藏状态指示（非作者） -->
+    <view wx:if="{{!canEdit}}" class="shelf-indicator {{isInShelf ? 'active' : ''}}" bindtap="toggleShelf">
+      <text class="shelf-icon">{{isInShelf ? '❤️' : '🤍'}}</text>
+    </view>
+
+    <!-- 更多按钮 -->
+    <view class="more-btn" bindtap="onShowMore">
+      <text class="more-icon">⋮</text>
+    </view>
+  </view>
+
+  <!-- 主内容区域 -->
+  <view class="main-content">
+    <!-- 图片区域 -->
+    <view class="image-section">
+      <view class="image-container {{!currentPage.image_url ? 'empty' : ''}}" bindtap="onImageTap">
+        <image
+          wx:if="{{currentPage.image_url}}"
+          class="page-image"
+          src="{{currentPage.image_url}}"
+          mode="aspectFit"
+        />
+        <!-- 空图片占位 -->
+        <view wx:else class="empty-image">
+          <text class="empty-icon">🖼️</text>
+          <text class="empty-title">暂无图片</text>
+          <text class="empty-subtitle">该页面尚未上传图片</text>
+        </view>
+      </view>
+
+      <!-- 左右翻页按钮 -->
+      <view class="page-controls">
+        <view class="prev-btn {{currentPageIndex <= 0 ? 'disabled' : ''}}" bindtap="onPrevPage">
+          <text>‹</text>
+        </view>
+        <view class="next-btn {{currentPageIndex >= book.pages.length - 1 ? 'disabled' : ''}}" bindtap="onNextPage">
+          <text>›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 句子列表区域 -->
+    <view class="sentences-card">
+      <!-- 处理中提示 -->
+      <view class="processing-tip" wx:if="{{isProcessing}}">
+        <view class="processing-spinner"></view>
+        <text class="processing-text">正在识别文字，请稍候...</text>
+      </view>
+
+      <!-- 滑动翻页提示 -->
+      <view class="swipe-tip" wx:if="{{showSwipeTip && book.pages.length > 1 && !isProcessing}}">
+        <text class="swipe-icon">👆</text>
+        <text class="swipe-text">左右滑动图片可翻页</text>
+      </view>
+
+      <!-- 句子列表头部 -->
+      <view class="sentences-header">
+        <!-- 整页朗读按钮 -->
+        <view wx:if="{{sentences.length > 0}}" class="play-all-btn {{isPlayingAll ? 'active' : ''}}" bindtap="onPlayAll">
+          <text class="play-all-icon">{{isPlayingAll ? '⏸' : '▶'}}</text>
+        </view>
+
+        <text class="header-title" wx:if="{{sentences.length > 0}}">朗读练习</text>
+
+        <!-- 翻译切换按钮 -->
+        <view class="translation-btn {{showTranslation ? 'active' : ''}}" bindtap="onToggleTranslation">
+          <text class="trans-icon">{{showTranslation ? '🌐' : '👁️'}}</text>
+          <text class="trans-text">{{showTranslation ? '译' : '显示'}}</text>
+        </view>
+
+        <!-- 语速选择器（平铺） -->
+        <view class="speed-buttons">
+          <view class="speed-item {{speedIndex === 0 ? 'active' : ''}}" bindtap="onSetSpeed" data-index="0">
+            <text>慢速</text>
+          </view>
+          <view class="speed-item {{speedIndex === 1 ? 'active' : ''}}" bindtap="onSetSpeed" data-index="1">
+            <text>正常</text>
+          </view>
+          <view class="speed-item {{speedIndex === 2 ? 'active' : ''}}" bindtap="onSetSpeed" data-index="2">
+            <text>快速</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 句子列表 -->
+      <scroll-view class="sentences-scroll" scroll-y enable-back-to-top>
+        <!-- 有句子时显示列表 -->
+        <view wx:if="{{sentences.length > 0}}" class="sentences-list">
+          <view
+            class="sentence-item {{currentPlayingIndex === index ? 'active' : ''}}"
+            wx:for="{{sentences}}"
+            wx:key="id"
+            data-index="{{index}}"
+            bindtap="onSentenceTap"
+          >
+            <!-- 序号徽章 -->
+            <view class="index-badge {{currentPlayingIndex === index ? 'active' : ''}}">
+              <text>{{index + 1}}</text>
+            </view>
+
+            <!-- 句子内容 -->
+            <view class="sentence-content">
+              <!-- 英文句子 -->
+              <text class="sentence-en {{currentPlayingIndex === index ? 'active' : ''}}">{{item.en || item.text}}</text>
+              <!-- 中文翻译 -->
+              <text wx:if="{{showTranslation && (item.zh || item.translation)}}" class="sentence-zh">{{item.zh || item.translation}}</text>
+            </view>
+
+            <!-- 播放按钮 -->
+            <view class="play-btn {{currentPlayingIndex === index && isPlaying ? 'playing' : currentPlayingIndex === index && isPaused ? 'paused' : ''}}">
+              <text class="play-icon">{{currentPlayingIndex === index && isPlaying ? '⏸' : '▶'}}</text>
+            </view>
+
+            <!-- 编辑操作按钮（仅作者可见） -->
+            <view wx:if="{{canEdit}}" class="edit-actions">
+              <view class="edit-btn" catchtap="onEditSentence" data-index="{{index}}">
+                <text>✏️</text>
+              </view>
+              <view class="delete-btn" catchtap="onDeleteSentence" data-index="{{index}}">
+                <text>🗑️</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 添加句子按钮 -->
+          <view wx:if="{{canEdit}}" class="add-sentence-btn" bindtap="onAddSentence">
+            <text class="add-icon">+</text>
+            <text class="add-text">添加句子</text>
+          </view>
+        </view>
+
+        <!-- 无句子时显示空状态 -->
+        <view wx:else class="empty-sentences">
+          <text class="empty-icon">💬</text>
+          <text class="empty-text">当前页面暂无句子</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

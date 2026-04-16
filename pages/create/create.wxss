@@ -1,0 +1,404 @@
+/* 创作页面样式 - 参考 Flutter 应用设计 */
+
+.create-page {
+  padding: 24px;
+  padding-bottom: 32px;
+  background-color: #FAFAFA;
+}
+
+/* 页面标题 */
+.page-header {
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333333;
+  display: block;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #666666;
+  margin-top: 4px;
+  display: block;
+}
+
+/* 第一行：封面 + 标题 */
+.cover-title-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* 封面区域 */
+.cover-section {
+  flex-shrink: 0;
+}
+
+.cover-box {
+  width: 80px;
+  height: 107px;
+  border-radius: 12px;
+  background-color: #F5F5F5;
+  border: 2px solid #E0E0E0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cover-box.has-image {
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+
+.cover-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cover-icon {
+  font-size: 24px;
+}
+
+.cover-label {
+  font-size: 10px;
+  color: #666666;
+  margin-top: 4px;
+}
+
+.cover-delete {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 20px;
+  height: 20px;
+  background-color: #F44336;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #FFFFFF;
+  font-size: 12px;
+}
+
+/* 标题区域 */
+.title-section {
+  flex: 1;
+  padding: 16px;
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666666;
+  display: block;
+}
+
+.share-label {
+  margin-top: 12px;
+}
+
+.title-input {
+  margin-top: 8px;
+  padding: 12px 16px;
+  background-color: #F5F5F5;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* 分享类型 */
+.share-type-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.share-btn {
+  flex: 1;
+  padding: 10px;
+  background-color: #F5F5F5;
+  border-radius: 10px;
+  border: 1px solid #E0E0E0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.share-btn.active {
+  border: none;
+}
+
+.share-btn.private-active {
+  background-color: #4CAF50;
+}
+
+.share-btn.public-active {
+  background-color: #FF7043;
+}
+
+.share-icon {
+  font-size: 16px;
+}
+
+.share-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666666;
+}
+
+.share-btn.active .share-text {
+  color: #FFFFFF;
+}
+
+/* 绘本内容上传 */
+.content-section {
+  padding: 16px;
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.image-count {
+  font-size: 12px;
+  color: #999999;
+}
+
+.upload-btn {
+  margin-top: 12px;
+  padding: 16px 12px;
+  background-color: #F5F5F5;
+  border-radius: 12px;
+  border: 1px solid #E8E8E8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-icon {
+  font-size: 20px;
+  color: #666666;
+}
+
+.upload-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #666666;
+}
+
+.upload-tip {
+  font-size: 12px;
+  color: #999999;
+  margin-top: 8px;
+  display: block;
+}
+
+/* 图片网格区域 */
+.images-grid-section {
+  margin-bottom: 24px;
+}
+
+.grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.grid-count {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.grid-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.grid-add-btn, .grid-clear-btn {
+  padding: 6px 12px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.grid-add-btn {
+  background-color: #4CAF50;
+  color: #FFFFFF;
+}
+
+.grid-clear-btn {
+  background-color: #FFEBEE;
+  color: #F44336;
+}
+
+.action-icon {
+  font-size: 12px;
+}
+
+.action-text {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 图片网格 */
+.images-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.image-item {
+  width: calc(33.33% - 8px);
+  height: 100px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  background-color: #F5F5F5;
+}
+
+.image-thumb {
+  width: 100%;
+  height: 100%;
+}
+
+.image-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  background-color: #4CAF50;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.image-delete {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background-color: #F44336;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #FFFFFF;
+  font-size: 12px;
+}
+
+/* 提示卡片 */
+.tips-card {
+  padding: 16px;
+  background-color: rgba(76, 175, 80, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tip-icon-box {
+  width: 40px;
+  height: 40px;
+  background-color: #4CAF50;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tip-icon {
+  font-size: 20px;
+}
+
+.tip-text {
+  font-size: 14px;
+  color: #333333;
+}
+
+/* 生成按钮 */
+.generate-section {
+  margin-bottom: 24px;
+}
+
+.generate-btn {
+  width: 100%;
+  padding: 20px;
+  background-color: #FF7043;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  color: #FFFFFF;
+}
+
+.generate-btn.disabled {
+  background-color: #CCCCCC;
+}
+
+.generate-icon {
+  font-size: 20px;
+}
+
+.generate-text {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* 进度卡片 */
+.progress-card {
+  padding: 24px;
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.progress-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.progress-text {
+  font-size: 14px;
+  color: #4CAF50;
+  margin-top: 12px;
+  display: block;
+}

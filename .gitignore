@@ -1,0 +1,26 @@
+# 微信开发者工具私有配置
+project.private.config.json
+
+# 微信开发者工具本地缓存
+.miniprogram/
+
+# macOS
+.DS_Store
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# 日志文件
+*.log
+npm-debug.log*
+
+# 临时文件
+*.tmp
+*.temp

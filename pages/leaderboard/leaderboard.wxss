@@ -1,0 +1,129 @@
+/* 排行榜详情页样式 */
+
+.leaderboard-page {
+  padding: 16px;
+  padding-bottom: 16px;
+  background-color: #FAFAFA;
+}
+
+.hot-books-section {
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #999999;
+}
+
+/* 热门绘本列表 */
+.book-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.book-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: #F8F8F8;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.book-item:active {
+  background-color: #EEEEEE;
+}
+
+.rank-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  font-size: 14px;
+  margin-right: 12px;
+}
+
+.rank-badge.top {
+  background-color: #FF7043;
+  color: #FFFFFF;
+}
+
+.book-item:nth-child(1) .rank-badge {
+  background-color: #FFD700;
+  color: #FFFFFF;
+}
+
+.book-item:nth-child(2) .rank-badge {
+  background-color: #C0C0C0;
+  color: #FFFFFF;
+}
+
+.book-item:nth-child(3) .rank-badge {
+  background-color: #CD7F32;
+  color: #FFFFFF;
+}
+
+.book-item:nth-child(n+4) .rank-badge {
+  background-color: #EEEEEE;
+  color: #666666;
+}
+
+.book-cover {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  background-color: #F5F5F5;
+}
+
+.book-info {
+  flex: 1;
+  margin-left: 12px;
+}
+
+.book-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333333;
+  display: block;
+}
+
+.book-level {
+  font-size: 12px;
+  color: #4CAF50;
+  margin-top: 4px;
+  display: block;
+}
+
+/* 空状态 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+}
+
+.empty-icon {
+  font-size: 48px;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #666666;
+  margin-top: 16px;
+}
