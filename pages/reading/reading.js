@@ -5,8 +5,6 @@
 const booksApi = require('../../api/books')
 const AudioPlayer = require('../../utils/audio-player')
 
-const BASE_URL = 'http://47.85.201.118:8000'
-
 Page({
   data: {
     // 绘本数据
@@ -68,6 +66,18 @@ Page({
   },
 
   /**
+   * 获取基础 URL
+   */
+  getBaseUrl() {
+    try {
+      const app = getApp()
+      return app.globalData.baseUrl
+    } catch (e) {
+      return 'http://47.85.201.118:8000'
+    }
+  },
+
+  /**
    * 获取完整图片URL
    */
   getFullImageUrl(path) {
@@ -75,7 +85,7 @@ Page({
     if (path.startsWith('http://') || path.startsWith('https://')) {
       return path
     }
-    return BASE_URL + path
+    return this.getBaseUrl() + path
   },
 
   /**
@@ -103,9 +113,9 @@ Page({
       let book = res.data || res
       book = this.processBookData(book)
 
-      // 检查是否是作者
+      // 检查是否是作者（使用 String 确保 UUID 类型一致性）
       const userInfo = wx.getStorageSync('userInfo')
-      const canEdit = userInfo && (userInfo.id === book.user_id || userInfo.id === book.author_id)
+      const canEdit = userInfo && (String(userInfo.id) === String(book.user_id) || String(userInfo.id) === String(book.author_id))
 
       // 检查处理状态
       const isProcessing = book.status === 'processing' || book.status === 'generating'
@@ -531,7 +541,11 @@ Page({
         const newType = res.tapIndex === 0 ? 'public' : 'private'
         if (newType !== currentType) {
           try {
-            // TODO: 调用更新分享类型 API
+            await booksApi.updateBook(this.bookId, { share_type: newType })
+            // 更新本地数据
+            const book = this.data.book
+            book.share_type = newType
+            this.setData({ book })
             wx.showToast({ title: '设置已更新', icon: 'success' })
           } catch (error) {
             wx.showToast({ title: '设置失败', icon: 'none' })

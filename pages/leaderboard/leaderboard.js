@@ -35,6 +35,18 @@ Page({
   },
 
   /**
+   * 获取基础 URL
+   */
+  getBaseUrl() {
+    try {
+      const app = getApp()
+      return app.globalData.baseUrl
+    } catch (e) {
+      return 'http://47.85.201.118:8000'
+    }
+  },
+
+  /**
    * 获取完整图片URL
    */
   getFullImageUrl(path) {
@@ -42,8 +54,7 @@ Page({
     if (path.startsWith('http://') || path.startsWith('https://')) {
       return path
     }
-    const baseUrl = 'http://47.85.201.118:8000'
-    return baseUrl + path
+    return this.getBaseUrl() + path
   },
 
   // 点击绘本
@@ -55,9 +66,8 @@ Page({
   },
 
   // 下拉刷新
-  onPullDownRefresh() {
-    this.loadData().then(() => {
-      wx.stopPullDownRefresh()
-    })
+  async onPullDownRefresh() {
+    await this.loadData()
+    wx.stopPullDownRefresh()
   }
 })

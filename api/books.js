@@ -160,6 +160,15 @@ function deletePage(bookId, pageNumber) {
 }
 
 /**
+ * 更新绘本信息（包括分享类型）
+ * @param {string} bookId 绘本ID
+ * @param {Object} data 更新数据
+ */
+function updateBook(bookId, data) {
+  return put(`/books/${bookId}`, data)
+}
+
+/**
  * 完成阅读
  * @param {string} bookId 绘本ID
  */
@@ -190,6 +199,7 @@ module.exports = {
   uploadPageImage,
   createPage,
   deletePage,
+  updateBook,
   createSentence,
   updateSentence,
   deleteSentence,

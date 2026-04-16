@@ -43,12 +43,11 @@ Page({
     this.loadData()
   },
 
-  onPullDownRefresh() {
+  async onPullDownRefresh() {
     this.setData({ isRefreshing: true })
-    this.loadData().then(() => {
-      wx.stopPullDownRefresh()
-      this.setData({ isRefreshing: false })
-    })
+    await this.loadData()
+    wx.stopPullDownRefresh()
+    this.setData({ isRefreshing: false })
   },
 
   onReachBottom() {
@@ -90,15 +89,16 @@ Page({
    * 加载模拟数据（测试用）
    */
   loadMockData() {
-    const mockBooks = [
-      { id: 1, title: '小红帽', image: '', level: 1, view_count: 100, like_count: 50 },
-      { id: 2, title: '三只小猪', image: '', level: 2, view_count: 80, like_count: 40 },
-      { id: 3, title: '白雪公主', image: '', level: 1, view_count: 120, like_count: 60 },
-      { id: 4, title: '龟兔赛跑', image: '', level: 1, view_count: 90, like_count: 45 },
-      { id: 5, title: '狼和七只小羊', image: '', level: 2, view_count: 70, like_count: 35 },
-      { id: 6, title: '丑小鸭', image: '', level: 3, view_count: 150, like_count: 75 }
+    const mockBooksData = [
+      { id: 1, title: '小红帽', cover_image: '', level: 1, read_count: 100, shelf_count: 50 },
+      { id: 2, title: '三只小猪', cover_image: '', level: 2, read_count: 80, shelf_count: 40 },
+      { id: 3, title: '白雪公主', cover_image: '', level: 1, read_count: 120, shelf_count: 60 },
+      { id: 4, title: '龟兔赛跑', cover_image: '', level: 1, read_count: 90, shelf_count: 45 },
+      { id: 5, title: '狼和七只小羊', cover_image: '', level: 2, read_count: 70, shelf_count: 35 },
+      { id: 6, title: '丑小鸭', cover_image: '', level: 3, read_count: 150, shelf_count: 75 }
     ]
 
+    const mockBooks = Book.fromJsonList(mockBooksData)
     const mockHotBooks = mockBooks.map((b, i) => ({ ...b, rank: i + 1 }))
 
     // 按列分配
@@ -237,17 +237,27 @@ Page({
    * 执行搜索
    */
   onSearch() {
-    const term = this.data.searchTerm.trim()
-    if (!term) return
+    const term = this.data.searchTerm.trim().toLowerCase()
+    if (!term) {
+      // 清空搜索时恢复全部绘本
+      this.setData({ displayedBooks: this.data.books })
+      return
+    }
 
     // 保存搜索历史
     this.saveSearchHistory(term)
 
-    // TODO: 实现搜索逻辑
-    wx.showToast({
-      title: '搜索功能开发中',
-      icon: 'none'
+    // 本地过滤绘本（标题匹配）
+    const filteredBooks = this.data.books.filter(book =>
+      book.title.toLowerCase().includes(term)
+    )
+
+    this.setData({
+      displayedBooks: filteredBooks,
+      isEmpty: filteredBooks.length === 0
     })
+
+    console.log('[Explore] 搜索结果:', filteredBooks.length, '本')
   },
 
   /**
@@ -303,7 +313,7 @@ Page({
   onBookTap(e) {
     const bookId = e.currentTarget.dataset.bookId
     wx.navigateTo({
-      url: `/pages/reading/reading?bookId=${bookId}`
+      url: `/pages/reading/reading?id=${bookId}`
     })
   },
 
@@ -313,7 +323,7 @@ Page({
   onHotBookTap(e) {
     const bookId = e.currentTarget.dataset.bookId
     wx.navigateTo({
-      url: `/pages/reading/reading?bookId=${bookId}`
+      url: `/pages/reading/reading?id=${bookId}`
     })
   },
 
@@ -331,5 +341,18 @@ Page({
    */
   onImageError(e) {
     console.log('[Explore] 图片加载失败:', e)
+    // 可以在这里设置占位图，但由于小程序限制，无法直接修改 image src
+    // 建议使用 CSS 设置默认背景图或使用 binderror 显示占位元素
+  },
+
+  /**
+   * 清除搜索并恢复列表
+   */
+  onClearSearch() {
+    this.setData({
+      searchTerm: '',
+      displayedBooks: this.data.books,
+      isEmpty: this.data.books.length === 0
+    })
   }
 })

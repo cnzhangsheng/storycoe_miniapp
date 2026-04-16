@@ -50,14 +50,14 @@
     </view>
 
     <view class="achievements-grid" wx:else>
-      <view class="achievement-item {{item.is_unlocked ? 'unlocked' : 'locked'}}" wx:for="{{achievements}}" wx:key="id">
+      <view class="achievement-item {{item.isUnlocked ? 'unlocked' : 'locked'}}" wx:for="{{achievements}}" wx:key="id">
         <view class="achievement-icon">
           <text>{{item.icon || '🏆'}}</text>
         </view>
         <text class="achievement-name">{{item.name}}</text>
         <text class="achievement-desc">{{item.description}}</text>
         <view class="achievement-status">
-          <text wx:if="{{item.is_unlocked}}">✅ 已解锁</text>
+          <text wx:if="{{item.isUnlocked}}">✅ 已解锁</text>
           <text wx:else>🔒 未解锁</text>
         </view>
       </view>

@@ -72,9 +72,9 @@ function request(options) {
             title: '请先登录',
             icon: 'none'
           })
-          // 跳转到登录
-          wx.navigateTo({
-            url: '/pages/login/login'
+          // 跳转到我的页面（登录入口）
+          wx.switchTab({
+            url: '/pages/profile/profile'
           })
           reject(new Error('未授权'))
         } else if (res.statusCode === 404) {

@@ -58,8 +58,8 @@ function requireLogin(callback) {
       confirmText: '去登录',
       success(res) {
         if (res.confirm) {
-          wx.navigateTo({
-            url: '/pages/login/login'
+          wx.switchTab({
+            url: '/pages/profile/profile'
           })
         }
       }

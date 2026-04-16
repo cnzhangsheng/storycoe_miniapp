@@ -24,7 +24,7 @@
     <!-- 页码指示器 -->
     <view class="page-indicator">
       <text class="page-icon">📖</text>
-      <text class="page-text">{{currentPageIndex + 1}}/{{book.pages.length}}</text>
+      <text class="page-text">{{currentPageIndex + 1}}/{{(book.pages && book.pages.length) || 0}}</text>
     </view>
 
     <!-- 收藏状态指示（非作者） -->
@@ -42,9 +42,9 @@
   <view class="main-content">
     <!-- 图片区域 -->
     <view class="image-section">
-      <view class="image-container {{!currentPage.image_url ? 'empty' : ''}}" bindtap="onImageTap">
+      <view class="image-container {{currentPage && currentPage.image_url ? '' : 'empty'}}" bindtap="onImageTap">
         <image
-          wx:if="{{currentPage.image_url}}"
+          wx:if="{{currentPage && currentPage.image_url}}"
           class="page-image"
           src="{{currentPage.image_url}}"
           mode="aspectFit"
@@ -62,7 +62,7 @@
         <view class="prev-btn {{currentPageIndex <= 0 ? 'disabled' : ''}}" bindtap="onPrevPage">
           <text>‹</text>
         </view>
-        <view class="next-btn {{currentPageIndex >= book.pages.length - 1 ? 'disabled' : ''}}" bindtap="onNextPage">
+        <view class="next-btn {{currentPageIndex >= ((book.pages && book.pages.length) || 0) - 1 ? 'disabled' : ''}}" bindtap="onNextPage">
           <text>›</text>
         </view>
       </view>
@@ -77,7 +77,7 @@
       </view>
 
       <!-- 滑动翻页提示 -->
-      <view class="swipe-tip" wx:if="{{showSwipeTip && book.pages.length > 1 && !isProcessing}}">
+      <view class="swipe-tip" wx:if="{{showSwipeTip && book.pages && book.pages.length > 1 && !isProcessing}}">
         <text class="swipe-icon">👆</text>
         <text class="swipe-text">左右滑动图片可翻页</text>
       </view>

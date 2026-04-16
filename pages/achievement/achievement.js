@@ -7,6 +7,7 @@ const gamificationApi = require('../../api/gamification')
 Page({
   data: {
     achievements: [],
+    unlockedIds: [], // 已解锁的成就ID列表
     stats: null,
     loading: true
   },
@@ -23,11 +24,20 @@ Page({
       ])
 
       // 兼容两种响应格式
-      const achievements = achievementsRes.data || achievementsRes.achievements || []
+      const rawData = achievementsRes.data || achievementsRes
+      const achievements = rawData.achievements || rawData || []
+      const unlockedIds = (rawData.unlocked_ids || []).map(id => String(id))
       const stats = statsRes.data || statsRes
 
+      // 标记每个成就的解锁状态
+      const processedAchievements = achievements.map(achievement => ({
+        ...achievement,
+        isUnlocked: unlockedIds.includes(String(achievement.id)) || !!achievement.unlocked_at
+      }))
+
       this.setData({
-        achievements,
+        achievements: processedAchievements,
+        unlockedIds,
         stats,
         loading: false
       })
@@ -39,9 +49,8 @@ Page({
   },
 
   // 下拉刷新
-  onPullDownRefresh() {
-    this.loadData().then(() => {
-      wx.stopPullDownRefresh()
-    })
+  async onPullDownRefresh() {
+    await this.loadData()
+    wx.stopPullDownRefresh()
   }
 })

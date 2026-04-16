@@ -111,7 +111,7 @@
 
     <!-- 空状态 -->
     <view class="empty-container" wx:if="{{isEmpty}}">
-      <image class="empty-icon" src="" mode="aspectFit" />
+      <text class="empty-icon">📚</text>
       <text class="empty-text">没有找到相关的绘本哦</text>
     </view>
   </view>

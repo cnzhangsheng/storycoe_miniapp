@@ -84,10 +84,18 @@ Page({
     const mockUserInfo = {
       avatar: '',
       name: 'Lily 小象',
-      id: 1
+      id: 'test_user_001'
     }
 
-    wx.setStorageSync('token', 'test_token_123')
+    const mockToken = 'test_token_123'
+
+    // 同步到 globalData
+    const app = getApp()
+    app.globalData.token = mockToken
+    app.globalData.userInfo = mockUserInfo
+    app.globalData.isLoggedIn = true
+
+    wx.setStorageSync('token', mockToken)
     wx.setStorageSync('userInfo', mockUserInfo)
 
     this.setData({
