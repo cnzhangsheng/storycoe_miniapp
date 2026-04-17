@@ -30,19 +30,6 @@
     <view class="title-section">
       <text class="section-label">绘本名称</text>
       <input class="title-input" placeholder="给你的书起个好听的名字..." value="{{title}}" bindinput="onTitleInput" maxlength="50" />
-
-      <!-- 分享类型 -->
-      <text class="section-label share-label">分享类型</text>
-      <view class="share-type-row">
-        <view class="share-btn {{shareType === 'private' ? 'active private-active' : ''}}" bindtap="onSetShareType" data-type="private">
-          <text class="share-icon">🔒</text>
-          <text class="share-text">私有</text>
-        </view>
-        <view class="share-btn {{shareType === 'public' ? 'active public-active' : ''}}" bindtap="onSetShareType" data-type="public">
-          <text class="share-icon">🌐</text>
-          <text class="share-text">公开</text>
-        </view>
-      </view>
     </view>
   </view>
 
@@ -58,10 +45,10 @@
       <text class="upload-text">{{images.length ? '继续添加照片' : '从相册上传绘本照片'}}</text>
     </view>
 
-    <text wx:if="{{images.length === 0}}" class="upload-tip">最多20张，支持拖动排序</text>
+    <text wx:if="{{images.length === 0}}" class="upload-tip">最多20张，长按可拖动排序</text>
   </view>
 
-  <!-- 图片网格 -->
+  <!-- 图片列表区域 -->
   <view class="images-grid-section" wx:if="{{images.length > 0}}">
     <view class="grid-header">
       <text class="grid-count">共 {{images.length}} 张</text>
@@ -77,32 +64,60 @@
       </view>
     </view>
 
-    <!-- 图片列表 -->
+    <!-- 拖拽提示 -->
+    <view wx:if="{{isDragMode}}" class="drag-tip-bar">
+      <text class="drag-tip-text">拖拽调整顺序，松手完成</text>
+    </view>
+
+    <!-- 图片网格（一行4个） -->
     <view class="images-grid">
-      <view class="image-item" wx:for="{{images}}" wx:key="id">
-        <image src="{{item.path}}" mode="aspectFill" class="image-thumb" bindtap="onPreviewImage" data-index="{{index}}" />
-        <!-- 序号 -->
-        <view class="image-badge">
-          <text>{{index + 1}}</text>
-        </view>
-        <!-- 删除按钮 -->
-        <view class="image-delete" catchtap="onDeleteImage" data-index="{{index}}">
-          <text>×</text>
+      <view
+        wx:for="{{images}}"
+        wx:key="id"
+        class="grid-item {{dragIndex === index ? 'drag-source' : ''}} {{dragOverIndex === index ? 'drag-target' : ''}}"
+        data-index="{{index}}"
+        bindlongpress="onImageDragStart"
+        bindtouchstart="onImageTouchStart"
+        bindtouchmove="onImageTouchMove"
+        bindtouchend="onImageTouchEnd"
+      >
+        <view class="grid-item-inner">
+          <image src="{{item.path}}" mode="aspectFill" class="grid-image" catchtap="onPreviewImage" data-index="{{index}}" />
+          <!-- 删除按钮 -->
+          <view class="grid-delete" catchtap="onDeleteImage" data-index="{{index}}">
+            <text>×</text>
+          </view>
+          <!-- 拖拽手柄 -->
+          <view class="grid-drag-handle">
+            <text>☰</text>
+          </view>
         </view>
       </view>
     </view>
   </view>
 
+  <!-- 拖拽浮层 -->
+  <view
+    wx:if="{{isDragMode && dragIndex !== -1}}"
+    class="drag-float-card"
+    style="top: {{dragFloatY}}px; left: {{dragFloatX}}px; width: {{dragFloatWidth}}px;"
+  >
+    <view class="drag-float-badge">
+      <text>{{dragOverIndex + 1}}</text>
+    </view>
+    <image src="{{dragImagePath}}" mode="aspectFill" class="drag-float-image" />
+  </view>
+
   <!-- 提示卡片 -->
-  <view class="tips-card" wx:if="{{images.length > 0}}">
+  <view class="tips-card" wx:if="{{images.length > 0 && !isDragMode}}">
     <view class="tip-icon-box">
       <text class="tip-icon">💡</text>
     </view>
-    <text class="tip-text">点击上下箭头可以调整图片顺序</text>
+    <text class="tip-text">长按图片可拖动调整顺序</text>
   </view>
 
   <!-- 生成按钮 -->
-  <view class="generate-section" wx:if="{{images.length > 0}}">
+  <view class="generate-section" wx:if="{{images.length > 0 && !isDragMode}}">
     <view class="generate-btn {{generating ? 'disabled' : ''}}" bindtap="onGenerate">
       <text class="generate-icon">✨</text>
       <text class="generate-text">{{generating ? '生成中...' : '生成朗读绘本'}}</text>

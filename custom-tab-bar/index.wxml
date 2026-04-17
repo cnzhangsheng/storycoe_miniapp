@@ -1,0 +1,24 @@
+<!--
+  自定义底部导航栏 - 参考微信原生样式
+  微信 tabBar 特点：
+  - 高度 50px
+  - 图标 24px，文字 10px
+  - 间距 4px
+-->
+
+<view class="tab-bar">
+  <view
+    wx:for="{{list}}"
+    wx:key="index"
+    class="tab-item {{selected === index ? 'active' : ''}}"
+    data-index="{{index}}"
+    bindtap="onTabTap"
+  >
+    <!-- 图标 -->
+    <view class="tab-icon {{selected === index ? 'active' : ''}}">
+      <text class="icon-symbol">{{item.icon}}</text>
+    </view>
+    <!-- 文字 -->
+    <text class="tab-text">{{item.text}}</text>
+  </view>
+</view>

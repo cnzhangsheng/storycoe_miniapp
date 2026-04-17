@@ -1,0 +1,65 @@
+/**
+ * 自定义底部导航栏样式
+ * 参考微信原生 tabBar 样式
+ */
+
+/* 导航栏整体 */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background-color: #FFFFFF;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: env(safe-area-inset-bottom); /* iOS 安全区域 */
+  border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+/* 单个 tab 项 */
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 50px;
+  padding: 4px 0;
+}
+
+/* 图标容器 */
+.tab-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.icon-symbol {
+  font-size: 22px;
+  line-height: 24px;
+  color: rgba(0, 0, 0, 0.5); /* 微信未选中态：半透明黑 */
+}
+
+/* 选中态图标 */
+.tab-icon.active .icon-symbol {
+  color: #07C160; /* 微信绿 */
+}
+
+/* 文字 */
+.tab-text {
+  font-size: 10px;
+  line-height: 14px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* 选中态文字 */
+.tab-item.active .tab-text {
+  color: #07C160;
+  font-weight: 500;
+}

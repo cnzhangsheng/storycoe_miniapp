@@ -3,13 +3,11 @@
  */
 
 const authApi = require('../../api/auth')
-const gamificationApi = require('../../api/gamification')
 
 Page({
   data: {
     userInfo: null,
     stats: null,
-    dailyTask: null,
     isLoading: false,
     isLoggedIn: false
   },
@@ -19,7 +17,10 @@ Page({
   },
 
   onShow() {
-    // 每次显示时检查登录状态
+    // 初始化自定义 tabBar
+    if (typeof this.getTabBar === 'function') {
+      this.getTabBar().init()
+    }
     this.checkLogin()
   },
 
@@ -39,39 +40,29 @@ Page({
       this.setData({
         userInfo: null,
         stats: null,
-        dailyTask: null,
         isLoading: false
       })
     }
   },
 
   /**
-   * 点击登录按钮 - 使用微信登录
+   * 点击登录按钮
    */
   async onLoginTap() {
     try {
       wx.showLoading({ title: '登录中...' })
 
-      // 微信登录
       const app = getApp()
       const result = await app.wxLogin()
 
       wx.hideLoading()
       wx.showToast({ title: '登录成功', icon: 'success' })
 
-      console.log('[Profile] 登录成功:', result)
-
       this.setData({ isLoggedIn: true })
       this.loadData()
     } catch (error) {
       wx.hideLoading()
-      console.error('[Profile] 登录失败:', error)
-
-      wx.showToast({
-        title: error.message || '登录失败',
-        icon: 'none',
-        duration: 2000
-      })
+      wx.showToast({ title: error.message || '登录失败', icon: 'none' })
     }
   },
 
@@ -81,33 +72,25 @@ Page({
     this.setData({ isLoading: true })
 
     try {
-      const [userRes, statsRes, taskRes] = await Promise.all([
-        authApi.getCurrentUser(),
-        gamificationApi.getStats(),
-        gamificationApi.getDailyTask()
-      ])
-
-      // 兼容两种响应格式
+      const userRes = await authApi.getCurrentUser()
       const userInfo = userRes.data || userRes
-      const stats = statsRes.data || statsRes
-      const dailyTask = taskRes.data || taskRes
 
-      console.log('[Profile] 用户信息:', userInfo)
+      // 统计数据（从本地存储获取，或使用默认值）
+      const stats = {
+        books_read: userInfo.books_read || 0,
+        stars: userInfo.stars || 0,
+        streak: userInfo.streak || 0
+      }
 
       this.setData({
         userInfo,
         stats,
-        dailyTask,
         isLoading: false
       })
     } catch (error) {
       console.error('[Profile] 加载失败:', error)
       this.setData({ isLoading: false })
-
-      wx.showToast({
-        title: error.message || '加载失败',
-        icon: 'none'
-      })
+      wx.showToast({ title: '加载失败', icon: 'none' })
     }
   },
 
@@ -148,19 +131,6 @@ Page({
     })
   },
 
-  onClaimReward() {
-    gamificationApi.claimDailyTaskReward().then(() => {
-      wx.showToast({ title: '恭喜获得奖励！', icon: 'success' })
-      this.loadData()
-    }).catch(() => {
-      wx.showToast({ title: '领取失败', icon: 'none' })
-    })
-  },
-
-  onAchievementTap() {
-    wx.navigateTo({ url: '/pages/achievement/achievement' })
-  },
-
   onLogout() {
     wx.showModal({
       title: '退出登录',
@@ -172,8 +142,7 @@ Page({
           this.setData({
             isLoggedIn: false,
             userInfo: null,
-            stats: null,
-            dailyTask: null
+            stats: null
           })
           wx.reLaunch({ url: '/pages/explore/explore' })
         }

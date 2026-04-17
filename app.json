@@ -5,8 +5,7 @@
     "pages/create/create",
     "pages/reading/reading",
     "pages/profile/profile",
-    "pages/leaderboard/leaderboard",
-    "pages/achievement/achievement"
+    "pages/leaderboard/leaderboard"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -16,8 +15,9 @@
     "backgroundColor": "#F5F5F5"
   },
   "tabBar": {
+    "custom": true,
     "color": "#999999",
-    "selectedColor": "#4CAF50",
+    "selectedColor": "#07C160",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "black",
     "list": [

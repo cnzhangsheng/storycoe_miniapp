@@ -108,10 +108,6 @@
   display: block;
 }
 
-.share-label {
-  margin-top: 12px;
-}
-
 .title-input {
   margin-top: 8px;
   padding: 12px 16px;
@@ -119,51 +115,6 @@
   border-radius: 12px;
   font-size: 16px;
   font-weight: 500;
-}
-
-/* 分享类型 */
-.share-type-row {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.share-btn {
-  flex: 1;
-  padding: 10px;
-  background-color: #F5F5F5;
-  border-radius: 10px;
-  border: 1px solid #E0E0E0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-}
-
-.share-btn.active {
-  border: none;
-}
-
-.share-btn.private-active {
-  background-color: #4CAF50;
-}
-
-.share-btn.public-active {
-  background-color: #FF7043;
-}
-
-.share-icon {
-  font-size: 16px;
-}
-
-.share-text {
-  font-size: 14px;
-  font-weight: 600;
-  color: #666666;
-}
-
-.share-btn.active .share-text {
-  color: #FFFFFF;
 }
 
 /* 绘本内容上传 */
@@ -266,33 +217,129 @@
   font-weight: 600;
 }
 
-/* 图片网格 */
+/* ========================================
+   图片网格（一行4个）
+   ======================================== */
+
+/* 拖拽提示 */
+.drag-tip-bar {
+  padding: 10px 16px;
+  background-color: rgba(76, 175, 80, 0.15);
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.drag-tip-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4CAF50;
+}
+
+/* 网格容器 */
 .images-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
-.image-item {
-  width: calc(33.33% - 8px);
-  height: 100px;
+/* 网格项（一行4个） */
+.grid-item {
+  width: calc(25% - 9px);
+  aspect-ratio: 1;
+  position: relative;
+  transition: transform 0.2s ease, opacity 0.15s ease;
+}
+
+/* 拖拽源项 */
+.grid-item.drag-source {
+  opacity: 0.3;
+  transform: scale(0.95);
+}
+
+/* 拖拽目标项 */
+.grid-item.drag-target {
+  transform: scale(1.05);
+  border: 2px dashed #4CAF50;
+  border-radius: 12px;
+}
+
+/* 网格项内部 */
+.grid-item-inner {
+  width: 100%;
+  height: 100%;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
   background-color: #F5F5F5;
+  border: 2px solid #E0E0E0;
 }
 
-.image-thumb {
+.grid-item.drag-source .grid-item-inner {
+  border-color: rgba(76, 175, 80, 0.5);
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+/* 网格图片 */
+.grid-image {
   width: 100%;
   height: 100%;
 }
 
-.image-badge {
+/* 删除按钮 */
+.grid-delete {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  background-color: #F44336;
+  border-radius: 11px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #FFFFFF;
+  font-size: 14px;
+}
+
+/* 拖拽手柄 */
+.grid-drag-handle {
   position: absolute;
   bottom: 4px;
-  left: 4px;
-  width: 24px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #FFFFFF;
+  font-size: 10px;
+}
+
+/* ========================================
+   拖拽浮层
+   ======================================== */
+
+.drag-float-card {
+  position: fixed;
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  border: 2px solid #4CAF50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  z-index: 999;
+  pointer-events: none;
+  transform: scale(1.15);
+  box-shadow: 0 16px 40px rgba(76, 175, 80, 0.5);
+}
+
+.drag-float-badge {
+  min-width: 24px;
   height: 24px;
+  padding: 0 6px;
   background-color: #4CAF50;
   border-radius: 8px;
   display: flex;
@@ -300,22 +347,14 @@
   align-items: center;
   color: #FFFFFF;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 
-.image-delete {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 20px;
-  height: 20px;
-  background-color: #F44336;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #FFFFFF;
-  font-size: 12px;
+.drag-float-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
 }
 
 /* 提示卡片 */
@@ -355,8 +394,9 @@
 }
 
 .generate-btn {
-  width: 100%;
-  padding: 20px;
+  width: auto;
+  min-width: 200px;
+  padding: 16px 32px;
   background-color: #FF7043;
   border-radius: 16px;
   display: flex;
@@ -364,6 +404,7 @@
   align-items: center;
   gap: 8px;
   color: #FFFFFF;
+  margin: 0 auto;
 }
 
 .generate-btn.disabled {

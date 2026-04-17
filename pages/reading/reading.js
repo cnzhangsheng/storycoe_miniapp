@@ -34,11 +34,34 @@ Page({
     audioSpeed: 'normal',
 
     // 处理状态
-    isProcessing: false
+    isProcessing: false,
+
+    // 左滑状态
+    swipedIndex: -1,
+
+    // 拖拽排序状态
+    isDragMode: false,
+    dragIndex: -1,
+    dragOverIndex: -1,
+    dragFloatY: 0,
+    dragSentenceText: ''
   },
 
   audioPlayer: null,
   bookId: null,
+
+  // 左滑相关
+  touchStartX: 0,
+  touchStartY: 0,
+  touchStartTime: 0,
+  touchStartIndex: -1,
+
+  // 拖拽相关
+  itemHeight: 80,
+  listTop: 0,
+  savedSentences: [],
+  longPressTimer: null,
+  isWaitingLongPress: false,
 
   onLoad(options) {
     const bookId = options.id || options.bookId
@@ -185,7 +208,7 @@ Page({
     let items = []
     if (canEdit) {
       // 作者菜单
-      items = ['添加页面', '分享设置']
+      items = ['添加页面']
     } else {
       // 非作者菜单（收藏功能）
       items = [isInShelf ? '取消收藏' : '收藏绘本']
@@ -195,14 +218,8 @@ Page({
       itemList: items,
       success: (res) => {
         if (canEdit) {
-          switch (res.tapIndex) {
-            case 0:
-              this.addNewPage()
-              break
-            case 1:
-              this.showShareSettings()
-              break
-          }
+          // 作者：添加页面
+          this.addNewPage()
         } else {
           // 非作者：收藏/取消收藏
           this.toggleShelf()
@@ -231,6 +248,47 @@ Page({
       console.error('[Reading] 收藏操作失败:', error)
       wx.showToast({ title: '操作失败', icon: 'none' })
     }
+  },
+
+  /**
+   * 点击标题修改
+   */
+  onEditTitle() {
+    if (!this.data.canEdit) return
+
+    const currentTitle = this.data.book?.title || ''
+
+    wx.showModal({
+      title: '修改绘本名称',
+      editable: true,
+      placeholderText: currentTitle,
+      success: async (res) => {
+        if (res.confirm && res.content && res.content.trim()) {
+          const newTitle = res.content.trim()
+
+          if (newTitle === currentTitle) {
+            return
+          }
+
+          try {
+            wx.showLoading({ title: '保存中...', mask: true })
+            await booksApi.updateBook(this.bookId, { title: newTitle })
+
+            // 更新本地数据
+            const book = this.data.book
+            book.title = newTitle
+            this.setData({ book })
+
+            wx.hideLoading()
+            wx.showToast({ title: '已更新', icon: 'success' })
+          } catch (error) {
+            wx.hideLoading()
+            console.error('[Reading] 更新标题失败:', error)
+            wx.showToast({ title: '更新失败', icon: 'none' })
+          }
+        }
+      }
+    })
   },
 
   // ========================================
@@ -273,10 +331,12 @@ Page({
   // 句子播放操作
   // ========================================
 
-  onSentenceTap(e) {
+  /**
+   * 点击播放按钮
+   */
+  onPlayBtnTap(e) {
     const index = e.currentTarget.dataset.index
     if (this.data.currentPlayingIndex === index) {
-      // 点击当前激活的句子，切换播放/暂停
       if (this.data.isPlaying) {
         this.pauseAudio()
       } else if (this.data.isPaused) {
@@ -285,9 +345,184 @@ Page({
         this.playSentence(index)
       }
     } else {
-      // 点击其他句子，播放该句子
       this.playSentence(index)
     }
+  },
+
+  // ========================================
+  // 拖拽排序
+  // ========================================
+
+  /**
+   * 卡片触摸开始
+   */
+  onCardTouchStart(e) {
+    const index = e.currentTarget.dataset.index
+    this.touchStartX = e.touches[0].clientX
+    this.touchStartY = e.touches[0].clientY
+    this.touchStartTime = Date.now()
+    this.touchStartIndex = index
+
+    // 关闭已滑开的项
+    if (this.data.swipedIndex !== -1 && this.data.swipedIndex !== index) {
+      this.setData({ swipedIndex: -1 })
+    }
+
+    // 如果可以编辑，设置长按检测
+    if (this.data.canEdit && this.data.sentences.length >= 2 && !this.data.isDragMode) {
+      this.isWaitingLongPress = true
+      // 350ms 后触发长按
+      this.longPressTimer = setTimeout(() => {
+        this.startDragMode(index, e.touches[0].clientY)
+      }, 350)
+    }
+  },
+
+  /**
+   * 卡片触摸移动
+   */
+  onCardTouchMove(e) {
+    const currentX = e.touches[0].clientX
+    const currentY = e.touches[0].clientY
+    const deltaX = currentX - this.touchStartX
+    const deltaY = currentY - this.touchStartY
+
+    // 如果在等待长按，且移动超过阈值，取消长按检测（转为左滑）
+    if (this.isWaitingLongPress && (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10)) {
+      this.isWaitingLongPress = false
+      if (this.longPressTimer) {
+        clearTimeout(this.longPressTimer)
+        this.longPressTimer = null
+      }
+    }
+
+    // 拖拽模式下，更新浮层位置
+    if (this.data.isDragMode && this.data.dragIndex !== -1) {
+      // 更新浮层 Y 位置
+      this.setData({ dragFloatY: currentY - 40 })
+
+      // 计算目标位置
+      const relativeY = currentY - this.listTop
+      let newIndex = Math.floor(relativeY / this.itemHeight)
+      newIndex = Math.max(0, Math.min(newIndex, this.data.sentences.length - 1))
+
+      if (newIndex !== this.data.dragOverIndex) {
+        this.setData({ dragOverIndex: newIndex })
+      }
+      return
+    }
+
+    // 非拖拽模式：检测左滑
+    if (!this.data.isDragMode && Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
+      // 超过阈值显示左滑菜单
+      if (deltaX < -60 && this.data.canEdit) {
+        this.setData({ swipedIndex: this.touchStartIndex })
+      }
+    }
+  },
+
+  /**
+   * 卡片触摸结束
+   */
+  onCardTouchEnd(e) {
+    // 清除长按检测
+    this.isWaitingLongPress = false
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer)
+      this.longPressTimer = null
+    }
+
+    // 拖拽模式结束
+    if (this.data.isDragMode) {
+      this.finishDrag()
+      return
+    }
+
+    // 左滑处理：右滑关闭
+    const endX = e.changedTouches[0].clientX
+    const deltaX = endX - this.touchStartX
+
+    if (deltaX > 30) {
+      this.setData({ swipedIndex: -1 })
+    }
+  },
+
+  /**
+   * 长按触发拖拽模式
+   */
+  startDragMode(index, touchY) {
+    this.isWaitingLongPress = false
+
+    // 震动反馈
+    wx.vibrateShort({ type: 'medium' })
+
+    // 获取列表位置
+    wx.createSelectorQuery()
+      .select('.sentences-list')
+      .boundingClientRect((rect) => {
+        if (!rect) return
+
+        this.listTop = rect.top
+        this.savedSentences = [...this.data.sentences]
+
+        const sentence = this.data.sentences[index]
+
+        // 进入拖拽模式
+        this.setData({
+          isDragMode: true,
+          dragIndex: index,
+          dragOverIndex: index,
+          dragFloatY: touchY - 40,
+          dragSentenceText: sentence.en || sentence.text,
+          swipedIndex: -1 // 关闭左滑菜单
+        })
+      })
+      .exec()
+  },
+
+  /**
+   * 完成拖拽，保存新顺序
+   */
+  async finishDrag() {
+    const { dragIndex, dragOverIndex, sentences } = this.data
+
+    // 重置拖拽状态
+    this.setData({
+      isDragMode: false,
+      dragIndex: -1,
+      dragOverIndex: -1,
+      dragFloatY: 0,
+      dragSentenceText: ''
+    })
+
+    // 位置未变化
+    if (dragIndex === dragOverIndex) {
+      return
+    }
+
+    // 更新顺序
+    const newSentences = [...sentences]
+    const [moved] = newSentences.splice(dragIndex, 1)
+    newSentences.splice(dragOverIndex, 0, moved)
+
+    this.setData({ sentences: newSentences })
+
+    // 保存到服务器
+    try {
+      wx.showLoading({ title: '保存中...', mask: true })
+      // await booksApi.updateSentenceOrder(this.bookId, this.data.currentPage.page_number, newSentences.map(s => s.id))
+      wx.hideLoading()
+      wx.showToast({ title: '已调整顺序', icon: 'success' })
+    } catch (error) {
+      wx.hideLoading()
+      wx.showToast({ title: '保存失败', icon: 'none' })
+      this.setData({ sentences: this.savedSentences })
+    }
+  },
+
+  // 保留旧方法名的兼容（可选）
+  onDragStart(e) {
+    this.onCardTouchStart(e)
   },
 
   async playSentence(index) {
@@ -443,6 +678,9 @@ Page({
     const sentence = this.data.sentences[index]
     const currentText = sentence?.en || sentence?.text || ''
 
+    // 关闭滑动状态
+    this.setData({ swipedIndex: -1 })
+
     wx.showModal({
       title: '编辑句子',
       editable: true,
@@ -464,6 +702,9 @@ Page({
   onDeleteSentence(e) {
     const index = e.currentTarget.dataset.index
     const sentence = this.data.sentences[index]
+
+    // 关闭滑动状态
+    this.setData({ swipedIndex: -1 })
 
     wx.showModal({
       title: '删除句子',
@@ -528,28 +769,6 @@ Page({
         } catch (error) {
           wx.hideLoading()
           wx.showToast({ title: '添加失败', icon: 'none' })
-        }
-      }
-    })
-  },
-
-  showShareSettings() {
-    const currentType = this.data.book?.share_type || 'private'
-    wx.showActionSheet({
-      itemList: ['公开绘本', '私有绘本'],
-      success: async (res) => {
-        const newType = res.tapIndex === 0 ? 'public' : 'private'
-        if (newType !== currentType) {
-          try {
-            await booksApi.updateBook(this.bookId, { share_type: newType })
-            // 更新本地数据
-            const book = this.data.book
-            book.share_type = newType
-            this.setData({ book })
-            wx.showToast({ title: '设置已更新', icon: 'success' })
-          } catch (error) {
-            wx.showToast({ title: '设置失败', icon: 'none' })
-          }
         }
       }
     })

@@ -58,64 +58,16 @@
   color: #FFFFFF;
 }
 
-.daily-task {
+.stats-section {
   margin-bottom: 16px;
 }
 
-.task-header {
-  display: flex;
-  justify-content: space-between;
-}
-
-.task-title {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.task-reward {
-  font-size: 12px;
-  color: #4CAF50;
-}
-
-.task-content {
-  margin-top: 12px;
-}
-
-.task-claim {
-  margin-top: 12px;
-  padding: 10px;
-  background-color: #FF7043;
-  border-radius: 12px;
-  color: #FFFFFF;
-  text-align: center;
-  font-weight: 700;
-}
-
-.achievements-section {
-  margin-bottom: 16px;
-}
-
-.achievements-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.achievements-title {
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.achievements-more {
-  color: #999999;
-}
-
-.achievements-grid {
+.stats-grid {
   display: flex;
   gap: 12px;
 }
 
-.achievement-item {
+.stats-item {
   flex: 1;
   padding: 16px;
   background-color: #FFFFFF;
@@ -123,17 +75,17 @@
   text-align: center;
 }
 
-.achievement-icon {
+.stats-icon {
   font-size: 24px;
 }
 
-.achievement-value {
+.stats-value {
   font-size: 20px;
   font-weight: 700;
   color: #4CAF50;
 }
 
-.achievement-label {
+.stats-label {
   font-size: 10px;
   color: #999999;
 }

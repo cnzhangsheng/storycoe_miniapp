@@ -16,7 +16,7 @@
     </view>
 
     <!-- 绘本标题 -->
-    <view class="title-area">
+    <view class="title-area" bindtap="onEditTitle">
       <text class="book-title">{{book.title || '绘本朗读'}}</text>
       <text class="edit-hint" wx:if="{{canEdit}}">✏️</text>
     </view>
@@ -112,47 +112,73 @@
       </view>
 
       <!-- 句子列表 -->
-      <scroll-view class="sentences-scroll" scroll-y enable-back-to-top>
+      <scroll-view
+        class="sentences-scroll {{isDragMode ? 'no-scroll' : ''}}"
+        scroll-y="{{!isDragMode}}"
+        enable-back-to-top
+        scroll-with-animation
+      >
         <!-- 有句子时显示列表 -->
-        <view wx:if="{{sentences.length > 0}}" class="sentences-list">
+        <view wx:if="{{sentences.length > 0}}" class="sentences-list" id="sentencesList">
+          <!-- 拖拽提示 -->
+          <view wx:if="{{isDragMode}}" class="drag-tip">
+            <text class="drag-tip-text">拖拽调整顺序，松手完成</text>
+          </view>
+
+          <!-- 句子列表项 -->
           <view
-            class="sentence-item {{currentPlayingIndex === index ? 'active' : ''}}"
             wx:for="{{sentences}}"
             wx:key="id"
+            class="sentence-row {{dragIndex !== -1 && index !== dragIndex ? (dragOverIndex > dragIndex && index > dragIndex && index <= dragOverIndex ? 'shift-up' : '') + (dragOverIndex < dragIndex && index < dragIndex && index >= dragOverIndex ? 'shift-down' : '') : ''}}"
             data-index="{{index}}"
-            bindtap="onSentenceTap"
           >
-            <!-- 序号徽章 -->
-            <view class="index-badge {{currentPlayingIndex === index ? 'active' : ''}}">
-              <text>{{index + 1}}</text>
-            </view>
-
-            <!-- 句子内容 -->
-            <view class="sentence-content">
-              <!-- 英文句子 -->
-              <text class="sentence-en {{currentPlayingIndex === index ? 'active' : ''}}">{{item.en || item.text}}</text>
-              <!-- 中文翻译 -->
-              <text wx:if="{{showTranslation && (item.zh || item.translation)}}" class="sentence-zh">{{item.zh || item.translation}}</text>
-            </view>
-
-            <!-- 播放按钮 -->
-            <view class="play-btn {{currentPlayingIndex === index && isPlaying ? 'playing' : currentPlayingIndex === index && isPaused ? 'paused' : ''}}">
-              <text class="play-icon">{{currentPlayingIndex === index && isPlaying ? '⏸' : '▶'}}</text>
-            </view>
-
-            <!-- 编辑操作按钮（仅作者可见） -->
-            <view wx:if="{{canEdit}}" class="edit-actions">
-              <view class="edit-btn" catchtap="onEditSentence" data-index="{{index}}">
-                <text>✏️</text>
+            <!-- 左滑操作区域（拖拽模式下隐藏） -->
+            <view class="swipe-actions" wx:if="{{canEdit && !isDragMode}}">
+              <view class="swipe-action edit" catchtap="onEditSentence" data-index="{{index}}">
+                <text class="action-icon">✏️</text>
+                <text class="action-text">编辑</text>
               </view>
-              <view class="delete-btn" catchtap="onDeleteSentence" data-index="{{index}}">
-                <text>🗑️</text>
+              <view class="swipe-action delete" catchtap="onDeleteSentence" data-index="{{index}}">
+                <text class="action-icon">🗑️</text>
+                <text class="action-text">删除</text>
+              </view>
+            </view>
+
+            <!-- 句子卡片 -->
+            <view
+              class="sentence-card-wrapper {{swipedIndex === index ? 'swiped' : ''}} {{isDragMode && dragIndex === index ? 'dragging' : ''}}"
+              data-index="{{index}}"
+              bindlongpress="onDragStart"
+              bindtouchstart="onCardTouchStart"
+              bindtouchmove="onCardTouchMove"
+              bindtouchend="onCardTouchEnd"
+            >
+              <view class="sentence-card {{currentPlayingIndex === index ? 'active' : ''}}">
+                <!-- 序号 -->
+                <view class="card-index {{currentPlayingIndex === index ? 'active' : ''}}">
+                  <text>{{index + 1}}</text>
+                </view>
+
+                <!-- 内容 -->
+                <view class="card-content">
+                  <text class="card-en {{currentPlayingIndex === index ? 'active' : ''}}">{{item.en || item.text}}</text>
+                  <text wx:if="{{showTranslation && (item.zh || item.translation)}}" class="card-zh">{{item.zh || item.translation}}</text>
+                </view>
+
+                <!-- 播放按钮 -->
+                <view
+                  class="card-play-btn {{currentPlayingIndex === index && isPlaying ? 'playing' : currentPlayingIndex === index && isPaused ? 'paused' : ''}}"
+                  catchtap="onPlayBtnTap"
+                  data-index="{{index}}"
+                >
+                  <text class="play-icon">{{currentPlayingIndex === index && isPlaying ? '⏸' : '▶'}}</text>
+                </view>
               </view>
             </view>
           </view>
 
           <!-- 添加句子按钮 -->
-          <view wx:if="{{canEdit}}" class="add-sentence-btn" bindtap="onAddSentence">
+          <view wx:if="{{canEdit && !isDragMode}}" class="add-sentence-btn" bindtap="onAddSentence">
             <text class="add-icon">+</text>
             <text class="add-text">添加句子</text>
           </view>
@@ -164,6 +190,28 @@
           <text class="empty-text">当前页面暂无句子</text>
         </view>
       </scroll-view>
+    </view>
+  </view>
+
+  <!-- 拖拽浮层（页面顶层，fixed定位） -->
+  <view
+    wx:if="{{isDragMode && dragIndex !== -1}}"
+    class="drag-floating-card"
+    style="top: {{dragFloatY}}px; left: 16px; right: 16px;"
+  >
+    <!-- 拖拽手柄 -->
+    <view class="drag-handle-icon">
+      <text>☰</text>
+    </view>
+
+    <!-- 序号 -->
+    <view class="drag-index-badge">
+      <text>{{dragOverIndex + 1}}</text>
+    </view>
+
+    <!-- 内容 -->
+    <view class="drag-content">
+      <text class="drag-en-text">{{dragSentenceText}}</text>
     </view>
   </view>
 </view>

@@ -167,6 +167,14 @@ function updateBook(bookId, data) {
 }
 
 /**
+ * 删除绘本
+ * @param {string} bookId 绘本ID
+ */
+function deleteBook(bookId) {
+  return del(`/books/${bookId}`)
+}
+
+/**
  * 完成阅读
  * @param {string} bookId 绘本ID
  */
@@ -198,6 +206,7 @@ module.exports = {
   createPage,
   deletePage,
   updateBook,
+  deleteBook,
   createSentence,
   updateSentence,
   deleteSentence,

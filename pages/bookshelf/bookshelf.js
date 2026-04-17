@@ -12,7 +12,8 @@ Page({
     likedBooks: [],
     isLoading: false,
     isRefreshing: false,
-    isLoggedIn: false
+    isLoggedIn: false,
+    showDeleteIndex: -1 // 显示删除按钮的绘本索引
   },
 
   onLoad() {
@@ -20,6 +21,11 @@ Page({
   },
 
   onShow() {
+    // 初始化自定义 tabBar
+    if (typeof this.getTabBar === 'function') {
+      this.getTabBar().init()
+    }
+
     // 检查是否需要强制刷新（从创作页创建绘本后）
     const needRefresh = wx.getStorageSync('needRefreshBookshelf')
 
@@ -186,9 +192,105 @@ Page({
 
   onBookTap(e) {
     const bookId = e.currentTarget.dataset.bookId
-    console.log('[Bookshelf] 点击绘本:', bookId)
+    const status = e.currentTarget.dataset.status
+    const index = e.currentTarget.dataset.index
+
+    // 如果有显示删除按钮，先关闭
+    if (this.data.showDeleteIndex !== -1) {
+      if (this.data.showDeleteIndex === index) {
+        // 点击的是同一个卡片，关闭删除按钮
+        this.setData({ showDeleteIndex: -1 })
+        return
+      } else {
+        // 点击其他卡片，关闭当前删除按钮
+        this.setData({ showDeleteIndex: -1 })
+      }
+    }
+
+    console.log('[Bookshelf] 点击绘本:', bookId, '状态:', status)
+
+    // 只有已完成的绘本才能进入详情
+    if (status && status !== 'completed') {
+      if (status === 'generating' || status === 'processing') {
+        wx.showToast({ title: '绘本正在生成中', icon: 'none' })
+      } else if (status === 'error') {
+        wx.showToast({ title: '绘本生成失败', icon: 'none' })
+      } else {
+        wx.showToast({ title: '绘本尚未完成', icon: 'none' })
+      }
+      return
+    }
+
     wx.navigateTo({
       url: `/pages/reading/reading?id=${bookId}`
     })
+  },
+
+  /**
+   * 长按绘本显示删除按钮
+   */
+  onBookLongPress(e) {
+    const index = e.currentTarget.dataset.index
+
+    // 震动反馈
+    wx.vibrateShort({ type: 'light' })
+
+    console.log('[Bookshelf] 长按绘本，显示删除按钮，索引:', index)
+    this.setData({ showDeleteIndex: index })
+  },
+
+  /**
+   * 点击删除按钮
+   */
+  onDeleteBook(e) {
+    const bookId = e.currentTarget.dataset.bookId
+    const index = e.currentTarget.dataset.index
+
+    console.log('[Bookshelf] 点击删除按钮，bookId:', bookId)
+
+    wx.showModal({
+      title: '删除绘本',
+      content: '确定要删除这本绘本吗？删除后无法恢复。',
+      confirmText: '删除',
+      confirmColor: '#F44336',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            wx.showLoading({ title: '删除中...', mask: true })
+
+            // 调用删除 API
+            await booksApi.deleteBook(bookId)
+
+            wx.hideLoading()
+
+            // 更新本地列表
+            const myBooks = this.data.myBooks.slice()
+            myBooks.splice(index, 1)
+
+            this.setData({
+              myBooks,
+              showDeleteIndex: -1
+            })
+
+            wx.showToast({ title: '已删除', icon: 'success' })
+          } catch (error) {
+            wx.hideLoading()
+            console.error('[Bookshelf] 删除失败:', error)
+            wx.showToast({ title: error.message || '删除失败', icon: 'none' })
+            this.setData({ showDeleteIndex: -1 })
+          }
+        } else {
+          // 取消删除，隐藏删除按钮
+          this.setData({ showDeleteIndex: -1 })
+        }
+      }
+    })
+  },
+
+  /**
+   * 页面隐藏时关闭删除按钮
+   */
+  onHide() {
+    this.setData({ showDeleteIndex: -1 })
   }
 })

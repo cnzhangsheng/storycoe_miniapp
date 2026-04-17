@@ -51,24 +51,46 @@
         <block wx:if="{{selectedTab == 0}}">
           <block wx:if="{{myBooks.length > 0}}">
             <view
-              class="book-card"
+              class="book-card {{item.status === 'generating' || item.status === 'processing' ? 'disabled' : ''}}"
               wx:for="{{myBooks}}"
               wx:key="id"
               data-book-id="{{item.id}}"
+              data-status="{{item.status}}"
+              data-index="{{index}}"
               bindtap="onBookTap"
+              bindlongpress="onBookLongPress"
             >
               <view class="book-cover">
                 <image src="{{item.image}}" mode="aspectFill" lazy-load />
-                <!-- 状态标签 -->
-                <view class="status-tag {{item.status}}" wx:if="{{item.status && item.status !== 'completed'}}">
-                  <text>{{item.status === 'generating' ? '生成中' : item.status === 'processing' ? '处理中' : item.status === 'draft' ? '草稿' : '错误'}}</text>
+
+                <!-- 正在生成遮罩层 -->
+                <view class="generating-overlay" wx:if="{{item.status === 'generating' || item.status === 'processing'}}">
+                  <view class="generating-spinner"></view>
+                  <text class="generating-text">正在生成</text>
                 </view>
+
+                <!-- 删除按钮（长按后显示） -->
+                <view
+                  class="delete-btn {{showDeleteIndex === index ? 'show' : ''}}"
+                  catchtap="onDeleteBook"
+                  data-book-id="{{item.id}}"
+                  data-index="{{index}}"
+                >
+                  <text class="delete-icon">×</text>
+                </view>
+
                 <!-- 等级标签 -->
-                <view class="level-tag">
+                <view class="level-tag" wx:if="{{item.status === 'completed'}}">
                   <text>Lv.{{item.level}}</text>
                 </view>
+
                 <!-- 新绘本标记 -->
-                <view class="new-tag" wx:if="{{item.isNew}}">NEW</view>
+                <view class="new-tag" wx:if="{{item.isNew && item.status === 'completed'}}">NEW</view>
+
+                <!-- 错误状态标签 -->
+                <view class="error-tag" wx:if="{{item.status === 'error'}}">
+                  <text>生成失败</text>
+                </view>
               </view>
               <text class="book-title">{{item.title}}</text>
             </view>

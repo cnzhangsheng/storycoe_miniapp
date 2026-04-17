@@ -10,14 +10,33 @@ Page({
     coverImage: '',
     hasCover: false,
     images: [],
-    shareType: 'private', // private 或 public
     generating: false,
     progress: 0,
-    maxImages: 20
+    maxImages: 20,
+
+    // 拖拽排序状态
+    isDragMode: false,
+    dragIndex: -1,
+    dragOverIndex: -1,
+    dragFloatY: 0,
+    dragFloatX: 0,
+    dragFloatWidth: 0,
+    dragImagePath: ''
   },
 
+  // 拖拽相关变量
+  itemWidth: 0,
+  itemHeight: 0,
+  gridLeft: 0,
+  gridTop: 0,
+  columns: 4,
+  savedImages: [],
+  touchStartX: 0,
+  touchStartY: 0,
+  longPressTimer: null,
+  isWaitingLongPress: false,
+
   onLoad() {
-    // 检查登录状态
     const token = wx.getStorageSync('token')
     if (!token) {
       wx.showModal({
@@ -28,6 +47,12 @@ Page({
           wx.switchTab({ url: '/pages/profile/profile' })
         }
       })
+    }
+  },
+
+  onShow() {
+    if (typeof this.getTabBar === 'function') {
+      this.getTabBar().init()
     }
   },
 
@@ -60,12 +85,6 @@ Page({
     })
   },
 
-  // 设置分享类型
-  onSetShareType(e) {
-    const type = e.currentTarget.dataset.type
-    this.setData({ shareType: type })
-  },
-
   // 选择图片
   onChooseImages() {
     const { images, maxImages } = this.data
@@ -88,10 +107,6 @@ Page({
         }))
 
         const totalImages = [...images, ...newImages]
-        if (newImages.length < res.tempFiles.length) {
-          wx.showToast({ title: `已达到最大数量，仅添加了${newImages.length}张`, icon: 'none' })
-        }
-
         this.setData({ images: totalImages })
       }
     })
@@ -129,9 +144,146 @@ Page({
     })
   },
 
+  // ========================================
+  // 图片拖拽排序（网格布局）
+  // ========================================
+
+  onImageTouchStart(e) {
+    this.touchStartX = e.touches[0].clientX
+    this.touchStartY = e.touches[0].clientY
+
+    if (this.data.images.length >= 2 && !this.data.isDragMode) {
+      this.isWaitingLongPress = true
+      this.longPressTimer = setTimeout(() => {
+        this.startImageDragMode(e)
+      }, 350)
+    }
+  },
+
+  onImageTouchMove(e) {
+    const currentX = e.touches[0].clientX
+    const currentY = e.touches[0].clientY
+    const deltaX = currentX - this.touchStartX
+    const deltaY = currentY - this.touchStartY
+
+    // 移动超过阈值，取消长按检测
+    if (this.isWaitingLongPress && (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10)) {
+      this.isWaitingLongPress = false
+      if (this.longPressTimer) {
+        clearTimeout(this.longPressTimer)
+        this.longPressTimer = null
+      }
+    }
+
+    // 拖拽模式下更新浮层位置
+    if (this.data.isDragMode && this.data.dragIndex !== -1) {
+      // 更新浮层位置（居中显示）
+      const floatWidth = this.data.dragFloatWidth
+      this.setData({
+        dragFloatX: currentX - floatWidth / 2,
+        dragFloatY: currentY - 80
+      })
+
+      // 计算目标位置（网格）
+      const relativeX = currentX - this.gridLeft
+      const relativeY = currentY - this.gridTop
+      const col = Math.floor(relativeX / this.itemWidth)
+      const row = Math.floor(relativeY / this.itemHeight)
+
+      // 边界限制
+      const maxCol = Math.min(this.columns - 1, Math.max(0, col))
+      const maxRow = Math.max(0, Math.min(row, Math.ceil(this.data.images.length / this.columns) - 1))
+
+      let newIndex = maxRow * this.columns + maxCol
+      newIndex = Math.max(0, Math.min(newIndex, this.data.images.length - 1))
+
+      if (newIndex !== this.data.dragOverIndex) {
+        this.setData({ dragOverIndex: newIndex })
+      }
+    }
+  },
+
+  onImageTouchEnd(e) {
+    this.isWaitingLongPress = false
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer)
+      this.longPressTimer = null
+    }
+
+    if (this.data.isDragMode) {
+      this.finishImageDrag()
+    }
+  },
+
+  startImageDragMode(e) {
+    const index = e.currentTarget.dataset.index
+    this.isWaitingLongPress = false
+
+    // 震动反馈
+    wx.vibrateShort({ type: 'medium' })
+
+    // 获取网格位置和尺寸
+    wx.createSelectorQuery()
+      .select('.images-grid')
+      .boundingClientRect((rect) => {
+        if (!rect) return
+
+        this.gridLeft = rect.left
+        this.gridTop = rect.top
+        this.itemWidth = rect.width / this.columns - 9 // 减去 gap
+        this.itemHeight = this.itemWidth // 正方形
+
+        this.savedImages = [...this.data.images]
+        const image = this.data.images[index]
+
+        this.setData({
+          isDragMode: true,
+          dragIndex: index,
+          dragOverIndex: index,
+          dragFloatX: this.touchStartX - 38,
+          dragFloatY: this.touchStartY - 80,
+          dragFloatWidth: 76,
+          dragImagePath: image.path
+        })
+      })
+      .exec()
+  },
+
+  finishImageDrag() {
+    const { dragIndex, dragOverIndex, images } = this.data
+
+    this.setData({
+      isDragMode: false,
+      dragIndex: -1,
+      dragOverIndex: -1,
+      dragFloatY: 0,
+      dragFloatX: 0,
+      dragImagePath: ''
+    })
+
+    if (dragIndex === dragOverIndex) {
+      return
+    }
+
+    // 更新顺序
+    const newImages = [...images]
+    const [moved] = newImages.splice(dragIndex, 1)
+    newImages.splice(dragOverIndex, 0, moved)
+
+    this.setData({ images: newImages })
+    wx.showToast({ title: '顺序已调整', icon: 'success' })
+  },
+
+  onImageDragStart(e) {
+    this.onImageTouchStart(e)
+  },
+
+  // ========================================
   // 生成绘本
+  // ========================================
+
   async onGenerate() {
-    const { title, coverImage, hasCover, images, shareType } = this.data
+    const { title, coverImage, hasCover, images } = this.data
 
     // 验证
     if (!title.trim()) {
@@ -174,11 +326,8 @@ Page({
         title: title.trim(),
         cover_image: hasCover ? uploadedUrls[0] : null,
         images: hasCover ? uploadedUrls.slice(1) : uploadedUrls,
-        share_type: shareType
+        share_type: 'private'
       })
-
-      console.log('[Create] 生成成功:', generateRes)
-      console.log('[Create] 新绘本 ID:', generateRes.book_id || generateRes.data?.book_id)
 
       this.setData({ progress: 100 })
 
@@ -192,17 +341,14 @@ Page({
         progress: 0
       })
 
-      // 设置刷新标记，通知书架页面需要刷新
+      // 设置刷新标记
       wx.setStorageSync('needRefreshBookshelf', true)
-      console.log('[Create] 已设置 needRefreshBookshelf 标志')
 
       wx.showModal({
         title: '上传成功',
         content: '绘本已创建成功！',
         showCancel: false,
         success: () => {
-          console.log('[Create] 用户点击确认，跳转到书架页')
-          // 跳转到书架
           wx.switchTab({ url: '/pages/bookshelf/bookshelf' })
         }
       })

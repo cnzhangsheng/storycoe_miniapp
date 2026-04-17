@@ -43,6 +43,13 @@ Page({
     this.loadData()
   },
 
+  onShow() {
+    // 初始化自定义 tabBar
+    if (typeof this.getTabBar === 'function') {
+      this.getTabBar().init()
+    }
+  },
+
   async onPullDownRefresh() {
     this.setData({ isRefreshing: true })
     await this.loadData()
