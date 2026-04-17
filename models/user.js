@@ -4,7 +4,7 @@
 
 class User {
   constructor(data = {}) {
-    this.id = data.id || ''
+    this.id = String(data.id || '')
     this.name = data.name || 'Lily 小象'
     this.avatar = data.avatar || ''
     this.level = data.level || 1
@@ -81,7 +81,7 @@ class GamificationStats {
  */
 class DailyTask {
   constructor(data = {}) {
-    this.id = data.id || ''
+    this.id = String(data.id || '')
     this.readBooks = data.read_books || 0
     this.targetBooks = data.target_books || 3
     this.rewardStars = data.reward_stars || 20

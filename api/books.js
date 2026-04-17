@@ -26,11 +26,9 @@ function getPublicBooks(params = {}) {
 
 /**
  * 获取绘本架列表（我的绘本 + 收藏的绘本）
- * @param {Object} params 查询参数
  */
-function getMyBooks(params = {}) {
-  const { page = 1, pageSize = 20, status } = params
-  return get('/books', { page, page_size: pageSize, status })
+function getMyBooks() {
+  return get('/books')
 }
 
 /**

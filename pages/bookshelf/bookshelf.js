@@ -11,6 +11,7 @@ Page({
     myBooks: [],
     likedBooks: [],
     isLoading: false,
+    isRefreshing: false,
     isLoggedIn: false
   },
 
@@ -54,7 +55,8 @@ Page({
       this.setData({
         myBooks: [],
         likedBooks: [],
-        isLoading: false
+        isLoading: false,
+        isRefreshing: false
       })
     }
   },
@@ -77,16 +79,47 @@ Page({
       this.setData({
         myBooks: [],
         likedBooks: [],
-        isLoading: false
+        isLoading: false,
+        isRefreshing: false
       })
     }
   },
 
-  onPullDownRefresh() {
-    if (this.data.isLoggedIn) {
-      this.loadBooks()
+  /**
+   * 下拉刷新（根据当前tab刷新对应数据）
+   */
+  async onRefresh() {
+    if (!this.data.isLoggedIn) {
+      this.setData({ isRefreshing: false })
+      return
     }
-    wx.stopPullDownRefresh()
+
+    console.log('[Bookshelf] 下拉刷新, 当前tab=', this.data.selectedTab)
+    this.setData({ isRefreshing: true })
+
+    try {
+      const res = await booksApi.getMyBooks()
+      const rawData = res.data || res
+
+      if (this.data.selectedTab === 0) {
+        // 刷新我的绘本架
+        const myBooks = Book.fromJsonList(rawData.my_books || [])
+        console.log('[Bookshelf] 刷新我的绘本架: ', myBooks.length, '本')
+        this.setData({ myBooks, isRefreshing: false })
+      } else {
+        // 刷新喜欢的绘本
+        const likedBooks = Book.fromJsonList(rawData.liked_books || [])
+        console.log('[Bookshelf] 刷新喜欢的绘本: ', likedBooks.length, '本')
+        this.setData({ likedBooks, isRefreshing: false })
+      }
+    } catch (error) {
+      console.error('[Bookshelf] 刷新失败:', error.message || error)
+      this.setData({ isRefreshing: false })
+      wx.showToast({
+        title: error.message || '刷新失败',
+        icon: 'none'
+      })
+    }
   },
 
   /**
@@ -127,13 +160,14 @@ Page({
       this.setData({
         myBooks,
         likedBooks,
-        isLoading: false
+        isLoading: false,
+        isRefreshing: false
       })
 
       return Promise.resolve()
     } catch (error) {
       console.error('[Bookshelf] 加载失败:', error.message || error)
-      this.setData({ isLoading: false })
+      this.setData({ isLoading: false, isRefreshing: false })
       wx.showToast({
         title: error.message || '加载失败',
         icon: 'none'

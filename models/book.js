@@ -27,8 +27,8 @@ function getFullImageUrl(path) {
 
 class Book {
   constructor(data = {}) {
-    this.id = data.id || ''
-    this.userId = data.user_id || ''
+    this.id = String(data.id || '')
+    this.userId = String(data.user_id || '')
     this.title = data.title || '未命名绘本'
     this.level = data.level || 1
     this.progress = data.progress || 0
@@ -99,8 +99,8 @@ class Book {
  */
 class BookPage {
   constructor(data = {}) {
-    this.id = data.id || ''
-    this.bookId = data.book_id || ''
+    this.id = String(data.id || '')
+    this.bookId = String(data.book_id || '')
     this.pageNumber = data.page_number || 1
     this.image = data.image || ''
     this.sentences = data.sentences || []

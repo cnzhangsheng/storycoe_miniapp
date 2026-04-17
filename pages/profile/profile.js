@@ -28,7 +28,8 @@ Page({
    */
   checkLogin() {
     const token = wx.getStorageSync('token')
-    const isLoggedIn = !!token
+    const userInfo = wx.getStorageSync('userInfo')
+    const isLoggedIn = !!token && !!userInfo
 
     this.setData({ isLoggedIn })
 
@@ -45,7 +46,7 @@ Page({
   },
 
   /**
-   * 点击登录按钮
+   * 点击登录按钮 - 使用微信登录
    */
   async onLoginTap() {
     try {
@@ -58,52 +59,20 @@ Page({
       wx.hideLoading()
       wx.showToast({ title: '登录成功', icon: 'success' })
 
+      console.log('[Profile] 登录成功:', result)
+
       this.setData({ isLoggedIn: true })
       this.loadData()
     } catch (error) {
       wx.hideLoading()
       console.error('[Profile] 登录失败:', error)
 
-      // 登录失败时使用模拟数据（测试模式）
-      wx.showModal({
-        title: '登录提示',
-        content: '后端微信登录接口尚未配置，是否使用测试模式？',
-        success: (res) => {
-          if (res.confirm) {
-            this.useTestMode()
-          }
-        }
+      wx.showToast({
+        title: error.message || '登录失败',
+        icon: 'none',
+        duration: 2000
       })
     }
-  },
-
-  /**
-   * 使用测试模式（模拟登录）
-   */
-  useTestMode() {
-    const mockUserInfo = {
-      avatar: '',
-      name: 'Lily 小象',
-      id: 'test_user_001'
-    }
-
-    const mockToken = 'test_token_123'
-
-    // 同步到 globalData
-    const app = getApp()
-    app.globalData.token = mockToken
-    app.globalData.userInfo = mockUserInfo
-    app.globalData.isLoggedIn = true
-
-    wx.setStorageSync('token', mockToken)
-    wx.setStorageSync('userInfo', mockUserInfo)
-
-    this.setData({
-      isLoggedIn: true,
-      userInfo: mockUserInfo
-    })
-
-    this.loadData()
   },
 
   async loadData() {
@@ -123,6 +92,8 @@ Page({
       const stats = statsRes.data || statsRes
       const dailyTask = taskRes.data || taskRes
 
+      console.log('[Profile] 用户信息:', userInfo)
+
       this.setData({
         userInfo,
         stats,
@@ -131,44 +102,13 @@ Page({
       })
     } catch (error) {
       console.error('[Profile] 加载失败:', error)
-      // 使用模拟数据
-      this.loadMockData()
+      this.setData({ isLoading: false })
+
+      wx.showToast({
+        title: error.message || '加载失败',
+        icon: 'none'
+      })
     }
-  },
-
-  /**
-   * 加载模拟数据（测试用）
-   */
-  loadMockData() {
-    const mockUserInfo = {
-      avatar: '',
-      name: 'Lily 小象',
-      id: 1
-    }
-
-    const mockStats = {
-      level: 5,
-      books_read: 20,
-      stars: 150,
-      streak: 7
-    }
-
-    const mockDailyTask = {
-      read_books: 2,
-      target_books: 3,
-      progress_percent: 67,
-      canClaim: false,
-      reward_stars: 10
-    }
-
-    this.setData({
-      userInfo: mockUserInfo,
-      stats: mockStats,
-      dailyTask: mockDailyTask,
-      isLoading: false
-    })
-
-    console.log('[Profile] 使用模拟数据')
   },
 
   onAvatarTap() {
@@ -227,7 +167,14 @@ Page({
       content: '确定要退出登录吗？',
       success: async (res) => {
         if (res.confirm) {
-          await authApi.logout()
+          const app = getApp()
+          app.clearLogin()
+          this.setData({
+            isLoggedIn: false,
+            userInfo: null,
+            stats: null,
+            dailyTask: null
+          })
           wx.reLaunch({ url: '/pages/explore/explore' })
         }
       }

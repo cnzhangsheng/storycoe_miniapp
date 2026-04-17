@@ -55,6 +55,8 @@ App({
         throw new Error('获取登录凭证失败')
       }
 
+      console.log('[App] wx.login code:', code)
+
       // 发送 code 到后端换取 token
       const res = await this.request({
         url: '/auth/wechat-login',
@@ -62,21 +64,32 @@ App({
         data: { code }
       })
 
+      console.log('[App] wechat-login 响应:', res)
+
       // 处理响应（兼容两种格式）
       let token, user
       if (res.code === 0 && res.data) {
         // 标准格式 {code: 0, data: {token, user}}
-        token = res.data.token
+        token = res.data.token || res.data.access_token
         user = res.data.user
-      } else if (res.token) {
-        // 直接格式 {token, user}
-        token = res.token
+      } else if (res.token || res.access_token) {
+        // 直接格式 {token, user} 或 {access_token, user}
+        token = res.token || res.access_token
         user = res.user
       } else {
         throw new Error(res.message || '登录失败')
       }
 
-      // 保存 token
+      if (!token) {
+        throw new Error('未获取到 token')
+      }
+
+      // 确保 user.id 是字符串（兼容后端整数 ID）
+      if (user && user.id) {
+        user.id = String(user.id)
+      }
+
+      // 保存 token 和用户信息
       this.globalData.token = token
       this.globalData.userInfo = user
       this.globalData.isLoggedIn = true
@@ -84,7 +97,7 @@ App({
       wx.setStorageSync('token', token)
       wx.setStorageSync('userInfo', user)
 
-      console.log('[App] 登录成功:', user)
+      console.log('[App] 登录成功: userId=', user?.id, 'name=', user?.name)
       return { token, user }
     } catch (error) {
       console.error('[App] 登录错误:', error)

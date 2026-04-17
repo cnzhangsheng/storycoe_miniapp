@@ -4,8 +4,8 @@
 
 class Sentence {
   constructor(data = {}) {
-    this.id = data.id || ''
-    this.pageId = data.page_id || ''
+    this.id = String(data.id || '')
+    this.pageId = String(data.page_id || '')
     this.content = data.content || ''
     this.translation = data.translation || ''
     this.order = data.order || 0
