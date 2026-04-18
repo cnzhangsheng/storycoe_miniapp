@@ -16,9 +16,21 @@
     </view>
 
     <!-- 绘本标题 -->
-    <view class="title-area" bindtap="onEditTitle">
+    <view class="title-area" wx:if="{{!editingTitle}}" bindtap="onEditTitle">
       <text class="book-title">{{book.title || '绘本朗读'}}</text>
       <text class="edit-hint" wx:if="{{canEdit}}">✏️</text>
+    </view>
+    <!-- 编辑模式下的标题输入框 -->
+    <view class="title-edit-area" wx:if="{{editingTitle && canEdit}}">
+      <input
+        class="title-input"
+        type="text"
+        value="{{book.title || ''}}"
+        placeholder="请输入绘本名称"
+        focus="{{editingTitle}}"
+        bindblur="onTitleBlur"
+        bindconfirm="onTitleConfirm"
+      />
     </view>
 
     <!-- 页码指示器 -->
@@ -93,20 +105,19 @@
 
         <!-- 翻译切换按钮 -->
         <view class="translation-btn {{showTranslation ? 'active' : ''}}" bindtap="onToggleTranslation">
-          <text class="trans-icon">{{showTranslation ? '🌐' : '👁️'}}</text>
-          <text class="trans-text">{{showTranslation ? '译' : '显示'}}</text>
+          <text class="trans-text">译</text>
         </view>
 
-        <!-- 语速选择器（平铺） -->
+        <!-- 语速选择器（靠右对齐） -->
         <view class="speed-buttons">
           <view class="speed-item {{speedIndex === 0 ? 'active' : ''}}" bindtap="onSetSpeed" data-index="0">
-            <text>慢速</text>
+            <text>慢</text>
           </view>
           <view class="speed-item {{speedIndex === 1 ? 'active' : ''}}" bindtap="onSetSpeed" data-index="1">
-            <text>正常</text>
+            <text>中</text>
           </view>
           <view class="speed-item {{speedIndex === 2 ? 'active' : ''}}" bindtap="onSetSpeed" data-index="2">
-            <text>快速</text>
+            <text>快</text>
           </view>
         </view>
       </view>
@@ -153,34 +164,86 @@
               bindtouchmove="onCardTouchMove"
               bindtouchend="onCardTouchEnd"
             >
-              <view class="sentence-card {{currentPlayingIndex === index ? 'active' : ''}}">
+              <view class="sentence-card {{currentPlayingIndex === index ? 'active' : ''}} {{editingSentenceIndex === index ? 'editing' : ''}}">
                 <!-- 序号 -->
                 <view class="card-index {{currentPlayingIndex === index ? 'active' : ''}}">
                   <text>{{index + 1}}</text>
                 </view>
 
-                <!-- 内容 -->
-                <view class="card-content">
-                  <text class="card-en {{currentPlayingIndex === index ? 'active' : ''}}">{{item.en || item.text}}</text>
-                  <text wx:if="{{showTranslation && (item.zh || item.translation)}}" class="card-zh">{{item.zh || item.translation}}</text>
+                <!-- 内容区域：普通模式 -->
+                <view class="card-content" wx:if="{{editingSentenceIndex !== index}}">
+                  <view class="card-en-wrapper">
+                    <text class="card-en {{currentPlayingIndex === index ? 'active' : ''}}">{{item.en || item.text}}</text>
+                  </view>
+                  <view wx:if="{{showTranslation && (item.zh || item.translation)}}" class="card-zh-wrapper">
+                    <text class="card-zh">{{item.zh || item.translation}}</text>
+                  </view>
                 </view>
 
-                <!-- 播放按钮 -->
+                <!-- 内容区域：编辑模式 -->
+                <view class="card-edit-content" wx:if="{{editingSentenceIndex === index}}">
+                  <input
+                    class="sentence-input"
+                    type="text"
+                    value="{{editingSentenceValue}}"
+                    placeholder="请输入英文句子"
+                    focus="{{editingSentenceIndex === index}}"
+                    data-index="{{index}}"
+                    bindinput="onSentenceInputChange"
+                    bindblur="onSentenceInputBlur"
+                    bindconfirm="onSentenceInputConfirm"
+                  />
+                </view>
+
+                <!-- 播放按钮（编辑时隐藏） -->
                 <view
+                  wx:if="{{editingSentenceIndex !== index}}"
                   class="card-play-btn {{currentPlayingIndex === index && isPlaying ? 'playing' : currentPlayingIndex === index && isPaused ? 'paused' : ''}}"
                   catchtap="onPlayBtnTap"
                   data-index="{{index}}"
                 >
                   <text class="play-icon">{{currentPlayingIndex === index && isPlaying ? '⏸' : '▶'}}</text>
                 </view>
+
+                <!-- 编辑模式下的确认按钮 -->
+                <view
+                  wx:if="{{editingSentenceIndex === index}}"
+                  class="card-confirm-btn"
+                  catchtap="onSentenceEditConfirm"
+                  data-index="{{index}}"
+                >
+                  <text class="confirm-icon">✓</text>
+                </view>
               </view>
             </view>
           </view>
 
           <!-- 添加句子按钮 -->
-          <view wx:if="{{canEdit && !isDragMode}}" class="add-sentence-btn" bindtap="onAddSentence">
+          <view wx:if="{{canEdit && !isDragMode && !isAddingSentence}}" class="add-sentence-btn" bindtap="onAddSentence">
             <text class="add-icon">+</text>
             <text class="add-text">添加句子</text>
+          </view>
+
+          <!-- 添加句子输入框 -->
+          <view wx:if="{{canEdit && !isDragMode && isAddingSentence}}" class="add-sentence-input-area">
+            <view class="add-input-wrapper">
+              <input
+                class="add-sentence-input"
+                type="text"
+                value="{{newSentenceValue}}"
+                placeholder="请输入英文句子"
+                focus="{{isAddingSentence}}"
+                bindinput="onNewSentenceInput"
+                bindblur="onNewSentenceBlur"
+                bindconfirm="onNewSentenceConfirm"
+              />
+            </view>
+            <view class="add-confirm-btn" catchtap="onNewSentenceConfirmTap">
+              <text class="confirm-icon">✓</text>
+            </view>
+            <view class="add-cancel-btn" catchtap="onNewSentenceCancel">
+              <text class="cancel-icon">×</text>
+            </view>
           </view>
         </view>
 

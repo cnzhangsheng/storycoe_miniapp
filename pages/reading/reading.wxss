@@ -312,7 +312,8 @@
 .translation-btn {
   display: flex;
   align-items: center;
-  padding: 4px 8px;
+  justify-content: center;
+  padding: 4px 12px;
   background-color: #E0E0E0;
   border-radius: 8px;
   margin-left: 8px;
@@ -322,32 +323,28 @@
   background-color: #FF7043;
 }
 
-.trans-icon {
-  font-size: 12px;
-}
-
 .trans-text {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   color: #666666;
-  margin-left: 3px;
 }
 
 .translation-btn.active .trans-text {
   color: #FFFFFF;
 }
 
+/* 语速选择器靠右对齐 */
 .speed-buttons {
   display: flex;
   gap: 6px;
-  margin-left: 12px;
+  margin-left: auto;
 }
 
 .speed-item {
-  padding: 4px 10px;
+  padding: 4px 12px;
   background-color: #F5F5F5;
   border-radius: 8px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: #666666;
 }
@@ -522,6 +519,12 @@
 .card-content {
   flex: 1;
   margin-left: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-en-wrapper {
+  display: block;
 }
 
 .card-en {
@@ -530,6 +533,7 @@
   color: #333333;
   opacity: 0.85;
   line-height: 1.5;
+  display: block;
 }
 
 .card-en.active {
@@ -538,13 +542,18 @@
   opacity: 1;
 }
 
+.card-zh-wrapper {
+  display: block;
+  margin-top: 8px;
+}
+
 .card-zh {
   font-size: 13px;
   font-weight: 500;
   color: #666666;
   opacity: 0.7;
   line-height: 1.4;
-  margin-top: 6px;
+  display: block;
 }
 
 .sentence-card.active .card-zh {
@@ -687,4 +696,124 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ========================================
+   标题行内编辑
+   ======================================== */
+.title-edit-area {
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+  flex: 1;
+}
+
+.title-input {
+  font-size: 18px;
+  font-weight: 800;
+  color: #333333;
+  background-color: #F5F5F5;
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 200px;
+}
+
+/* ========================================
+   句子行内编辑
+   ======================================== */
+.sentence-card.editing {
+  background-color: rgba(255, 152, 0, 0.1);
+  border-color: #FF9800;
+}
+
+.card-edit-content {
+  flex: 1;
+  margin-left: 12px;
+}
+
+.sentence-input {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333333;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 100%;
+  border: 1px solid #FF9800;
+}
+
+.card-confirm-btn {
+  width: 44px;
+  height: 44px;
+  background-color: #4CAF50;
+  border-radius: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
+  margin-left: 12px;
+}
+
+.confirm-icon {
+  font-size: 18px;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+/* ========================================
+   添加句子输入区域
+   ======================================== */
+.add-sentence-input-area {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background-color: rgba(255, 152, 0, 0.1);
+  border-radius: 16px;
+  margin-top: 12px;
+  border: 2px solid #FF9800;
+}
+
+.add-input-wrapper {
+  flex: 1;
+}
+
+.add-sentence-input {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333333;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 100%;
+  border: 1px solid #FF9800;
+}
+
+.add-confirm-btn {
+  width: 40px;
+  height: 40px;
+  background-color: #4CAF50;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 12px;
+}
+
+.add-cancel-btn {
+  width: 40px;
+  height: 40px;
+  background-color: #F44336;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.add-confirm-btn .confirm-icon,
+.add-cancel-btn .cancel-icon {
+  font-size: 16px;
+  color: #FFFFFF;
+  font-weight: bold;
 }

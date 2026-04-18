@@ -44,7 +44,16 @@ Page({
     dragIndex: -1,
     dragOverIndex: -1,
     dragFloatY: 0,
-    dragSentenceText: ''
+    dragSentenceText: '',
+
+    // 行内编辑状态
+    editingTitle: false,
+    editingSentenceIndex: -1,
+    editingSentenceValue: '',
+
+    // 添加句子状态
+    isAddingSentence: false,
+    newSentenceValue: ''
   },
 
   audioPlayer: null,
@@ -251,44 +260,49 @@ Page({
   },
 
   /**
-   * 点击标题修改
+   * 点击标题进入编辑模式
    */
   onEditTitle() {
     if (!this.data.canEdit) return
+    this.setData({ editingTitle: true })
+  },
 
+  /**
+   * 标题输入框失去焦点
+   */
+  async onTitleBlur(e) {
+    const newTitle = e.detail.value.trim()
     const currentTitle = this.data.book?.title || ''
 
-    wx.showModal({
-      title: '修改绘本名称',
-      editable: true,
-      placeholderText: currentTitle,
-      success: async (res) => {
-        if (res.confirm && res.content && res.content.trim()) {
-          const newTitle = res.content.trim()
+    // 先关闭编辑状态
+    this.setData({ editingTitle: false })
 
-          if (newTitle === currentTitle) {
-            return
-          }
+    // 内容未变化则不保存
+    if (newTitle === currentTitle || !newTitle) return
 
-          try {
-            wx.showLoading({ title: '保存中...', mask: true })
-            await booksApi.updateBook(this.bookId, { title: newTitle })
+    try {
+      wx.showLoading({ title: '保存中...', mask: true })
+      await booksApi.updateBook(this.bookId, { title: newTitle })
 
-            // 更新本地数据
-            const book = this.data.book
-            book.title = newTitle
-            this.setData({ book })
+      // 更新本地数据
+      const book = this.data.book
+      book.title = newTitle
+      this.setData({ book })
 
-            wx.hideLoading()
-            wx.showToast({ title: '已更新', icon: 'success' })
-          } catch (error) {
-            wx.hideLoading()
-            console.error('[Reading] 更新标题失败:', error)
-            wx.showToast({ title: '更新失败', icon: 'none' })
-          }
-        }
-      }
-    })
+      wx.hideLoading()
+      wx.showToast({ title: '已更新', icon: 'success' })
+    } catch (error) {
+      wx.hideLoading()
+      console.error('[Reading] 更新标题失败:', error)
+      wx.showToast({ title: '更新失败', icon: 'none' })
+    }
+  },
+
+  /**
+   * 标题输入框确认
+   */
+  onTitleConfirm(e) {
+    this.onTitleBlur(e)
   },
 
   // ========================================
@@ -673,30 +687,84 @@ Page({
   // 句子编辑操作
   // ========================================
 
+  /**
+   * 点击编辑按钮进入行内编辑模式
+   */
   onEditSentence(e) {
     const index = e.currentTarget.dataset.index
     const sentence = this.data.sentences[index]
     const currentText = sentence?.en || sentence?.text || ''
 
     // 关闭滑动状态
-    this.setData({ swipedIndex: -1 })
-
-    wx.showModal({
-      title: '编辑句子',
-      editable: true,
-      placeholderText: currentText,
-      success: async (res) => {
-        if (res.confirm && res.content && res.content.trim() !== currentText) {
-          try {
-            await booksApi.updateSentence(this.bookId, sentence.id, { en: res.content.trim() })
-            wx.showToast({ title: '已更新', icon: 'success' })
-            this.loadBookDetail()
-          } catch (error) {
-            wx.showToast({ title: '更新失败', icon: 'none' })
-          }
-        }
-      }
+    this.setData({
+      swipedIndex: -1,
+      editingSentenceIndex: index,
+      editingSentenceValue: currentText
     })
+  },
+
+  /**
+   * 句子输入内容变化
+   */
+  onSentenceInputChange(e) {
+    this.setData({
+      editingSentenceValue: e.detail.value
+    })
+  },
+
+  /**
+   * 句子输入框失去焦点
+   */
+  async onSentenceInputBlur(e) {
+    const newText = this.data.editingSentenceValue.trim()
+    const index = this.data.editingSentenceIndex
+    const sentence = this.data.sentences[index]
+    const currentText = sentence?.en || sentence?.text || ''
+
+    // 先关闭编辑状态
+    this.setData({ editingSentenceIndex: -1, editingSentenceValue: '' })
+
+    // 内容未变化则不保存
+    if (newText === currentText || !newText) return
+
+    try {
+      await booksApi.updateSentence(this.bookId, sentence.id, { en: newText })
+      wx.showToast({ title: '已更新', icon: 'success' })
+      this.loadBookDetail()
+    } catch (error) {
+      wx.showToast({ title: '更新失败', icon: 'none' })
+    }
+  },
+
+  /**
+   * 句子输入框确认
+   */
+  onSentenceInputConfirm(e) {
+    this.onSentenceInputBlur(e)
+  },
+
+  /**
+   * 点击确认按钮保存句子编辑
+   */
+  async onSentenceEditConfirm(e) {
+    const index = e.currentTarget.dataset.index
+    const newText = this.data.editingSentenceValue.trim()
+    const sentence = this.data.sentences[index]
+    const currentText = sentence?.en || sentence?.text || ''
+
+    // 关闭编辑状态
+    this.setData({ editingSentenceIndex: -1, editingSentenceValue: '' })
+
+    // 内容未变化则不保存
+    if (newText === currentText || !newText) return
+
+    try {
+      await booksApi.updateSentence(this.bookId, sentence.id, { en: newText })
+      wx.showToast({ title: '已更新', icon: 'success' })
+      this.loadBookDetail()
+    } catch (error) {
+      wx.showToast({ title: '更新失败', icon: 'none' })
+    }
   },
 
   onDeleteSentence(e) {
@@ -727,22 +795,89 @@ Page({
     const { currentPage } = this.data
     if (!currentPage) return
 
-    wx.showModal({
-      title: '添加句子',
-      editable: true,
-      placeholderText: '请输入英文句子...',
-      success: async (res) => {
-        if (res.confirm && res.content) {
-          try {
-            await booksApi.createSentence(this.bookId, currentPage.page_number, { en: res.content.trim() })
-            wx.showToast({ title: '已添加', icon: 'success' })
-            this.loadBookDetail()
-          } catch (error) {
-            wx.showToast({ title: '添加失败', icon: 'none' })
-          }
-        }
-      }
+    // 进入添加句子模式
+    this.setData({
+      isAddingSentence: true,
+      newSentenceValue: ''
     })
+  },
+
+  /**
+   * 新句子输入内容变化
+   */
+  onNewSentenceInput(e) {
+    this.setData({
+      newSentenceValue: e.detail.value
+    })
+  },
+
+  /**
+   * 新句子输入框失去焦点
+   * 注意：blur时不保存，只通过确认按钮或键盘确认来保存
+   */
+  onNewSentenceBlur(e) {
+    // 不在添加模式则忽略
+    if (!this.data.isAddingSentence) return
+
+    // 如果没有内容，关闭添加模式
+    if (!this.data.newSentenceValue.trim()) {
+      this.setData({ isAddingSentence: false, newSentenceValue: '' })
+    }
+  },
+
+  /**
+   * 新句子输入框确认（键盘确认）
+   */
+  async onNewSentenceConfirm(e) {
+    const newText = this.data.newSentenceValue.trim()
+    const { currentPage } = this.data
+
+    if (!newText) {
+      wx.showToast({ title: '请输入句子内容', icon: 'none' })
+      return
+    }
+
+    // 先关闭添加模式，防止 blur 再次触发
+    this.setData({ isAddingSentence: false, newSentenceValue: '' })
+
+    try {
+      await booksApi.createSentence(this.bookId, currentPage.page_number, { en: newText })
+      wx.showToast({ title: '已添加', icon: 'success' })
+      this.loadBookDetail()
+    } catch (error) {
+      wx.showToast({ title: '添加失败', icon: 'none' })
+    }
+  },
+
+  /**
+   * 点击确认按钮保存新句子
+   */
+  async onNewSentenceConfirmTap() {
+    const newText = this.data.newSentenceValue.trim()
+    const { currentPage } = this.data
+
+    if (!newText) {
+      wx.showToast({ title: '请输入句子内容', icon: 'none' })
+      return
+    }
+
+    // 先关闭添加模式，防止 blur 再次触发
+    this.setData({ isAddingSentence: false, newSentenceValue: '' })
+
+    try {
+      await booksApi.createSentence(this.bookId, currentPage.page_number, { en: newText })
+      wx.showToast({ title: '已添加', icon: 'success' })
+      this.loadBookDetail()
+    } catch (error) {
+      wx.showToast({ title: '添加失败', icon: 'none' })
+    }
+  },
+
+  /**
+   * 点击取消按钮取消添加
+   */
+  onNewSentenceCancel() {
+    this.setData({ isAddingSentence: false, newSentenceValue: '' })
   },
 
   // ========================================
