@@ -75,9 +75,9 @@
         >
           <!-- 封面 -->
           <image class="hot-cover" src="{{item.image}}" mode="aspectFill" binderror="onImageError" data-index="{{index}}" />
-          <!-- 序号 + 书名 -->
+          <!-- 序号 + 书名（同行显示） -->
           <view class="hot-info">
-            <text class="hot-rank">{{item.rank}}</text>
+            <text class="hot-rank {{item.rank > 3 ? 'normal' : ''}}">{{item.rank}}.</text>
             <text class="hot-title">{{item.title}}</text>
           </view>
         </view>

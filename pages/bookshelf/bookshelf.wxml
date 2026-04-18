@@ -20,14 +20,14 @@
         data-tab="0"
         bindtap="onTabChange"
       >
-        <text class="tab-text">我的绘本架</text>
+        <text class="tab-text">我的绘本馆</text>
       </view>
       <view
         class="tab-btn {{selectedTab == 1 ? 'active' : ''}}"
         data-tab="1"
         bindtap="onTabChange"
       >
-        <text class="tab-text">喜欢的绘本</text>
+        <text class="tab-text">心动绘本集</text>
       </view>
     </view>
 
@@ -125,7 +125,7 @@
           <!-- 空状态 -->
           <view class="empty-container" wx:else>
             <text class="empty-icon">❤️</text>
-            <text class="empty-text">还没有喜欢的绘本</text>
+            <text class="empty-text">还没有心动绘本</text>
             <text class="empty-tip">去探索页面发现精彩绘本</text>
           </view>
         </block>

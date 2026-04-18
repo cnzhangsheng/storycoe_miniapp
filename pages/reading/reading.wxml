@@ -44,8 +44,8 @@
       <text class="shelf-icon">{{isInShelf ? '❤️' : '🤍'}}</text>
     </view>
 
-    <!-- 更多按钮 -->
-    <view class="more-btn" bindtap="onShowMore">
+    <!-- 更多按钮（仅作者可见） -->
+    <view wx:if="{{canEdit}}" class="more-btn" bindtap="onShowMore">
       <text class="more-icon">⋮</text>
     </view>
   </view>
