@@ -1,6 +1,6 @@
 /**
- * 音频播放器封装 - 参考 Flutter TTS 服务设计
- * 用于 TTS 朗读功能
+ * 音频播放器封装 - 播放后端生成的 TTS 音频文件
+ * 用于绘本朗读功能
  */
 
 class AudioPlayer {
@@ -8,8 +8,7 @@ class AudioPlayer {
     this.innerAudio = null
     this.isPlaying = false
     this.isPaused = false
-    this.speed = 'normal'
-    this.currentText = ''
+    this.currentUrl = ''
     this.onPlayEnd = null
     this.onError = null
   }
@@ -27,7 +26,7 @@ class AudioPlayer {
     this.innerAudio.onEnded(() => {
       this.isPlaying = false
       this.isPaused = false
-      this.currentText = ''
+      this.currentUrl = ''
       if (this.onPlayEnd) {
         this.onPlayEnd()
       }
@@ -56,47 +55,35 @@ class AudioPlayer {
   }
 
   /**
-   * 播放句子
-   * @param {string} text 句子文本
-   * @param {string} speed 语速 (slow, normal, fast)
+   * 播放音频文件
+   * @param {string} url 音频 URL
    */
-  async playSentence(text, speed = 'normal') {
+  async playAudio(url) {
     if (!this.innerAudio) {
       this.init()
     }
 
-    this.speed = speed
-    this.currentText = text
+    this.currentUrl = url
+    this.innerAudio.src = url
+    this.innerAudio.play()
 
-    try {
-      // 目前后端暂无 TTS 接口，使用提示
-      wx.showToast({
-        title: 'TTS功能开发中',
-        icon: 'none',
-        duration: 1500
-      })
+    // 返回 Promise，等待播放完成
+    return new Promise((resolve, reject) => {
+      const originalOnEnd = this.onPlayEnd
+      const originalOnError = this.onError
 
-      console.log('[AudioPlayer] TTS 待播放:', text, 'speed:', speed)
+      this.onPlayEnd = () => {
+        this.onPlayEnd = originalOnEnd
+        this.onError = originalOnError
+        resolve()
+      }
 
-      // 模拟播放状态
-      this.isPlaying = true
-      this.isPaused = false
-
-      // 返回 Promise 模拟播放完成
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          this.isPlaying = false
-          this.isPaused = false
-          resolve()
-        }, 1000)
-      })
-
-    } catch (error) {
-      console.error('[AudioPlayer] 播放失败:', error)
-      this.isPlaying = false
-      this.isPaused = false
-      throw error
-    }
+      this.onError = (error) => {
+        this.onPlayEnd = originalOnEnd
+        this.onError = originalOnError
+        reject(error)
+      }
+    })
   }
 
   /**
@@ -131,18 +118,9 @@ class AudioPlayer {
       this.innerAudio.stop()
       this.isPlaying = false
       this.isPaused = false
-      this.currentText = ''
+      this.currentUrl = ''
       console.log('[AudioPlayer] 已停止')
     }
-  }
-
-  /**
-   * 设置语速
-   * @param {string} speed 语速 (slow, normal, fast)
-   */
-  setSpeed(speed) {
-    this.speed = speed
-    console.log('[AudioPlayer] 语速设置为:', speed)
   }
 
   /**
@@ -169,7 +147,7 @@ class AudioPlayer {
     }
     this.isPlaying = false
     this.isPaused = false
-    this.currentText = ''
+    this.currentUrl = ''
     console.log('[AudioPlayer] 已销毁')
   }
 }

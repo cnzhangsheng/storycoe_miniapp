@@ -333,6 +333,29 @@
   color: #FFFFFF;
 }
 
+/* 发音切换 */
+.accent-buttons {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+.accent-item {
+  width: 32px;
+  height: 32px;
+  background-color: #F5F5F5;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+}
+
+.accent-item.active {
+  background-color: #4CAF50;
+}
+
 /* 语速选择器靠右对齐 */
 .speed-buttons {
   display: flex;
@@ -561,9 +584,43 @@
   opacity: 0.9;
 }
 
+/* 翻译按钮 */
+.translate-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background-color: rgba(33, 150, 243, 0.15);
+  border-radius: 8px;
+  gap: 4px;
+}
+
+.translate-btn.translating {
+  background-color: rgba(255, 152, 0, 0.15);
+}
+
+.translate-icon {
+  font-size: 12px;
+}
+
+.translate-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2196F3;
+}
+
+.translate-btn.translating .translate-text {
+  color: #FF9800;
+}
+
 /* ========================================
    播放按钮
    ======================================== */
+.card-right-area {
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+}
+
 .card-play-btn {
   width: 44px;
   height: 44px;
@@ -573,7 +630,6 @@
   justify-content: center;
   align-items: center;
   box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
-  margin-left: 12px;
 }
 
 .card-play-btn.playing {
@@ -588,6 +644,50 @@
 .play-icon {
   font-size: 16px;
   color: #FFFFFF;
+}
+
+/* ========================================
+   状态提示
+   ======================================== */
+.card-status-tip {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 12px;
+  gap: 6px;
+}
+
+.card-status-tip.generating {
+  background-color: rgba(255, 152, 0, 0.15);
+}
+
+.card-status-tip.pending {
+  background-color: rgba(158, 158, 158, 0.15);
+}
+
+.card-status-tip.error {
+  background-color: rgba(244, 67, 54, 0.15);
+}
+
+.status-icon {
+  font-size: 14px;
+}
+
+.status-text {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.card-status-tip.generating .status-text {
+  color: #FF9800;
+}
+
+.card-status-tip.pending .status-text {
+  color: #9E9E9E;
+}
+
+.card-status-tip.error .status-text {
+  color: #F44336;
 }
 
 /* ========================================

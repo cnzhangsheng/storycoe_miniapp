@@ -16,6 +16,7 @@ function request(options) {
     method = 'GET',
     data = {},
     header = {},
+    timeout = 30000,
     showError = true
   } = options
 
@@ -40,7 +41,7 @@ function request(options) {
       method,
       data,
       header,
-      timeout: 30000,
+      timeout,
       success(res) {
         console.log(`[API] ${method} ${url}`, res.data)
 

@@ -28,10 +28,11 @@ Page({
     showTranslation: true,
     showSwipeTip: true,
 
-    // 语速设置
-    speedIndex: 1, // 0=慢速, 1=正常, 2=快速
-    speedLabels: ['慢速', '正常', '快速'],
-    audioSpeed: 'normal',
+    // 发音设置
+    accentIndex: 0, // 0=美式, 1=英式
+
+    // 语速设置（只有慢和正常）
+    speedIndex: 1, // 0=慢速, 1=正常
 
     // 处理状态
     isProcessing: false,
@@ -539,10 +540,42 @@ Page({
     this.onCardTouchStart(e)
   },
 
+  /**
+   * 获取音频 URL
+   */
+  getAudioUrl(sentence) {
+    const { speedIndex, accentIndex } = this.data
+
+    // 音频字段映射
+    const audioFields = {
+      // 美式
+      0: { 0: 'audio_us_slow', 1: 'audio_us_normal' },
+      // 英式
+      1: { 0: 'audio_gb_slow', 1: 'audio_gb_normal' },
+    }
+
+    const field = audioFields[accentIndex][speedIndex]
+    let audioUrl = sentence[field]
+
+    // 处理相对 URL
+    if (audioUrl && !audioUrl.startsWith('http')) {
+      audioUrl = this.getBaseUrl() + audioUrl
+    }
+
+    return audioUrl
+  },
+
   async playSentence(index) {
     const sentence = this.data.sentences[index]
-    const text = sentence?.en || sentence?.text
-    if (!text) return
+    if (!sentence) return
+
+    // 获取音频 URL
+    const audioUrl = this.getAudioUrl(sentence)
+
+    if (!audioUrl) {
+      wx.showToast({ title: '该句子暂无音频', icon: 'none' })
+      return
+    }
 
     this.stopAudio()
 
@@ -553,7 +586,7 @@ Page({
     })
 
     try {
-      await this.audioPlayer.playSentence(text, this.data.audioSpeed)
+      await this.audioPlayer.playAudio(audioUrl)
       this.setData({
         isPlaying: false,
         isPaused: false,
@@ -608,7 +641,7 @@ Page({
   // ========================================
 
   async onPlayAll() {
-    const { sentences, audioSpeed, isPlayingAll } = this.data
+    const { sentences, isPlayingAll } = this.data
 
     if (isPlayingAll) {
       this.stopAudio()
@@ -626,8 +659,8 @@ Page({
     for (let i = 0; i < sentences.length; i++) {
       if (!this.data.isPlayingAll) break
 
-      const text = sentences[i]?.en || sentences[i]?.text
-      if (!text) continue
+      const audioUrl = this.getAudioUrl(sentences[i])
+      if (!audioUrl) continue
 
       this.setData({
         isPlaying: true,
@@ -636,7 +669,7 @@ Page({
       })
 
       try {
-        await this.audioPlayer.playSentence(text, audioSpeed)
+        await this.audioPlayer.playAudio(audioUrl)
       } catch (error) {
         console.error('[Reading] 播放句子失败:', error)
         break
@@ -662,25 +695,57 @@ Page({
   },
 
   /**
-   * 直接设置语速
+   * 设置发音
+   */
+  onSetAccent(e) {
+    const index = parseInt(e.currentTarget.dataset.index)
+    this.setData({ accentIndex: index })
+  },
+
+  /**
+   * 设置语速
    */
   onSetSpeed(e) {
     const index = parseInt(e.currentTarget.dataset.index)
-    const speeds = ['slow', 'normal', 'fast']
-    this.setData({
-      speedIndex: index,
-      audioSpeed: speeds[index]
-    })
+    this.setData({ speedIndex: index })
   },
 
-  onSpeedChange(e) {
-    const index = parseInt(e.detail.value)
-    const speeds = ['slow', 'normal', 'fast']
-    this.setData({
-      speedIndex: index,
-      audioSpeed: speeds[index]
-    })
-    wx.showToast({ title: `语速: ${this.data.speedLabels[index]}`, icon: 'none' })
+  /**
+   * 手动翻译句子
+   * 点击翻译按钮时调用，等待返回后直接更新显示
+   */
+  async onTranslateSentence(e) {
+    const index = e.currentTarget.dataset.index
+    const sentence = this.data.sentences[index]
+    if (!sentence || !sentence.en) return
+
+    // 更新本地状态为翻译中（按钮显示"翻译中..."）
+    const sentences = this.data.sentences
+    sentences[index]._translating = true  // 使用本地状态，不影响后端status
+    this.setData({ sentences })
+
+    try {
+      // 调用新的 translate API
+      const response = await booksApi.translateSentence(this.bookId, sentence.id)
+      // response 格式: { code: 0, message: 'success', data: { success: true, zh: "..." } }
+      const res = response.data || response  // 支持两种返回格式
+
+      if (res.success && res.zh) {
+        // 直接更新本地数据
+        sentences[index].zh = res.zh
+        sentences[index]._translating = false
+        this.setData({ sentences })
+      } else {
+        sentences[index]._translating = false
+        this.setData({ sentences })
+        wx.showToast({ title: res.message || '翻译失败', icon: 'none' })
+      }
+    } catch (error) {
+      console.error('[Reading] 翻译失败:', error)
+      sentences[index]._translating = false
+      this.setData({ sentences })
+      wx.showToast({ title: '翻译失败', icon: 'none' })
+    }
   },
 
   // ========================================

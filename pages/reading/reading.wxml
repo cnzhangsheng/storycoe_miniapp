@@ -108,16 +108,23 @@
           <text class="trans-text">译</text>
         </view>
 
-        <!-- 语速选择器（靠右对齐） -->
+        <!-- 发音切换 -->
+        <view class="accent-buttons">
+          <view class="accent-item {{accentIndex === 0 ? 'active' : ''}}" bindtap="onSetAccent" data-index="0">
+            <text>🇺🇸</text>
+          </view>
+          <view class="accent-item {{accentIndex === 1 ? 'active' : ''}}" bindtap="onSetAccent" data-index="1">
+            <text>🇬🇧</text>
+          </view>
+        </view>
+
+        <!-- 语速选择器（只有慢和正常） -->
         <view class="speed-buttons">
           <view class="speed-item {{speedIndex === 0 ? 'active' : ''}}" bindtap="onSetSpeed" data-index="0">
             <text>慢</text>
           </view>
           <view class="speed-item {{speedIndex === 1 ? 'active' : ''}}" bindtap="onSetSpeed" data-index="1">
-            <text>中</text>
-          </view>
-          <view class="speed-item {{speedIndex === 2 ? 'active' : ''}}" bindtap="onSetSpeed" data-index="2">
-            <text>快</text>
+            <text>正常</text>
           </view>
         </view>
       </view>
@@ -175,8 +182,25 @@
                   <view class="card-en-wrapper">
                     <text class="card-en {{currentPlayingIndex === index ? 'active' : ''}}">{{item.en || item.text}}</text>
                   </view>
-                  <view wx:if="{{showTranslation && (item.zh || item.translation)}}" class="card-zh-wrapper">
-                    <text class="card-zh">{{item.zh || item.translation}}</text>
+                  <!-- 显示翻译区域 -->
+                  <view wx:if="{{showTranslation}}" class="card-zh-wrapper">
+                    <!-- 有中文翻译时显示 -->
+                    <text wx:if="{{item.zh}}" class="card-zh">{{item.zh}}</text>
+                    <!-- 翻译中时显示翻译中提示 -->
+                    <view wx:elif="{{item._translating}}" class="translate-btn translating">
+                      <text class="translate-icon">🔄</text>
+                      <text class="translate-text">翻译中...</text>
+                    </view>
+                    <!-- 无中文翻译时显示翻译按钮 -->
+                    <view
+                      wx:elif="{{!item.zh && item.status !== 'generating_tts'}}"
+                      class="translate-btn"
+                      catchtap="onTranslateSentence"
+                      data-index="{{index}}"
+                    >
+                      <text class="translate-icon">🌐</text>
+                      <text class="translate-text">翻译</text>
+                    </view>
                   </view>
                 </view>
 
@@ -195,14 +219,45 @@
                   />
                 </view>
 
-                <!-- 播放按钮（编辑时隐藏） -->
-                <view
-                  wx:if="{{editingSentenceIndex !== index}}"
-                  class="card-play-btn {{currentPlayingIndex === index && isPlaying ? 'playing' : currentPlayingIndex === index && isPaused ? 'paused' : ''}}"
-                  catchtap="onPlayBtnTap"
-                  data-index="{{index}}"
-                >
-                  <text class="play-icon">{{currentPlayingIndex === index && isPlaying ? '⏸' : '▶'}}</text>
+                <!-- 播放按钮或状态提示（编辑时隐藏） -->
+                <view wx:if="{{editingSentenceIndex !== index}}" class="card-right-area">
+                  <!-- 状态为 completed 时显示播放按钮 -->
+                  <view
+                    wx:if="{{item.status === 'completed'}}"
+                    class="card-play-btn {{currentPlayingIndex === index && isPlaying ? 'playing' : currentPlayingIndex === index && isPaused ? 'paused' : ''}}"
+                    catchtap="onPlayBtnTap"
+                    data-index="{{index}}"
+                  >
+                    <text class="play-icon">{{currentPlayingIndex === index && isPlaying ? '⏸' : '▶'}}</text>
+                  </view>
+
+                  <!-- 状态为 generating_tts 时显示生成音频提示 -->
+                  <view wx:elif="{{item.status === 'generating_tts'}}" class="card-status-tip generating">
+                    <text class="status-icon">🔊</text>
+                    <text class="status-text">生成音频...</text>
+                  </view>
+
+                  <!-- 状态为 pending 时显示待处理 -->
+                  <view wx:elif="{{item.status === 'pending'}}" class="card-status-tip pending">
+                    <text class="status-icon">⏳</text>
+                    <text class="status-text">待处理</text>
+                  </view>
+
+                  <!-- 状态为 error 时显示失败 -->
+                  <view wx:elif="{{item.status === 'error'}}" class="card-status-tip error">
+                    <text class="status-icon">⚠️</text>
+                    <text class="status-text">生成失败</text>
+                  </view>
+
+                  <!-- 无状态字段时（旧数据）显示播放按钮 -->
+                  <view
+                    wx:elif="{{!item.status}}"
+                    class="card-play-btn {{currentPlayingIndex === index && isPlaying ? 'playing' : currentPlayingIndex === index && isPaused ? 'paused' : ''}}"
+                    catchtap="onPlayBtnTap"
+                    data-index="{{index}}"
+                  >
+                    <text class="play-icon">{{currentPlayingIndex === index && isPlaying ? '⏸' : '▶'}}</text>
+                  </view>
                 </view>
 
                 <!-- 编辑模式下的确认按钮 -->

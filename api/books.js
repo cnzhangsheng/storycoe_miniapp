@@ -128,6 +128,15 @@ function updateSentence(bookId, sentenceId, data) {
 }
 
 /**
+ * 翻译句子（调用大模型翻译）
+ * @param {string} bookId 绘本ID
+ * @param {string} sentenceId 句子ID
+ */
+function translateSentence(bookId, sentenceId) {
+  return post(`/books/${bookId}/sentences/${sentenceId}/translate`, {}, { timeout: 60000 })
+}
+
+/**
  * 删除句子
  * @param {string} bookId 绘本ID
  * @param {string} sentenceId 句子ID
@@ -209,6 +218,7 @@ module.exports = {
   deleteBook,
   createSentence,
   updateSentence,
+  translateSentence,
   deleteSentence,
   completeReading,
   getReadingProgress
